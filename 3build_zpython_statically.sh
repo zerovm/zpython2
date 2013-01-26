@@ -28,18 +28,18 @@ ZRT_PYTHONFILES_FOLDER=${ZRT_ROOT}/mounts/pythonfiles
 ZRT_TAR_NAME_TO_INSTALL=${ZRT_PYTHONFILES_FOLDER}/python-install2.tar
 
 echo install zpython files
-make install prefix=${INSTALL_PATH} -n
+make install prefix=${INSTALL_PATH}
 
 
-# if [ -d ${INSTALL_PATH} ]
-# then
-# #prepare folder and remove old installed archive
-#     rm -f ${ZRT_TAR_NAME_TO_INSTALL}
-#     mkdir ${ZRT_PYTHONFILES_FOLDER} -p
-#     cd ${INSTALL_PATH}
+if [ -d ${INSTALL_PATH} ]
+then
+#prepare folder and remove old installed archive
+    rm -f ${ZRT_TAR_NAME_TO_INSTALL}
+    mkdir ${ZRT_PYTHONFILES_FOLDER} -p
+    cd ${INSTALL_PATH}
 
-# #add files into tar archive and copy it to the zrt/mounts
-#     tar -cf ${ZRT_TAR_NAME_TO_INSTALL} *
-#     echo created ${ZRT_TAR_NAME_TO_INSTALL}
-# fi
+#add files into tar archive and copy it to the zrt/mounts
+    tar -cf ${ZRT_TAR_NAME_TO_INSTALL} *
+    echo created ${ZRT_TAR_NAME_TO_INSTALL}
+fi
 

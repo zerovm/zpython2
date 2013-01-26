@@ -7,7 +7,11 @@
 #endif
 
 int
+#ifdef __native_client__
+zmain(int argc, char **argv)    /*set zrt entry point*/
+#else
 main(int argc, char **argv)
+#endif
 {
 	/* 754 requires that FP exceptions run in "no stop" mode by default,
 	 * and until C vendors implement C99's ways to control FP exceptions,
