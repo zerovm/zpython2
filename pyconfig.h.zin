@@ -665,7 +665,8 @@
 
 /* struct sockaddr_storage (sys/socket.h) */
 /* disabled for zpython */
-/* #undef HAVE_SOCKADDR_STORAGE */
+/* enable due to compilation problems */
+#undef HAVE_SOCKADDR_STORAGE
 
 /* Define if you have the 'socketpair' function. */
 /* disabled for zpython */
@@ -909,7 +910,8 @@
 #undef HAVE_WAIT4
 
 /* Define to 1 if you have the `waitpid' function. */
-#undef HAVE_WAITPID
+/* no waitpid in zerovm */
+/* #undef HAVE_WAITPID */
 
 /* Define if the compiler provides a wchar.h header file. */
 #undef HAVE_WCHAR_H
@@ -1285,6 +1287,10 @@ YaroslavLitvinov
 #if defined(__USLC__) && defined(__SCO_VERSION__)
 #define STRICT_SYSV_CURSES /* Don't use ncurses extensions */
 #endif
+
+
+/* define platform as zvm */
+#define PLATFORM "linux2-zvm"
 
 #endif /*Py_PYCONFIG_H*/
 

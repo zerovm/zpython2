@@ -6123,6 +6123,36 @@ posix_waitpid(PyObject *self, PyObject *args)
     /* shift the status left a byte so this is more like the POSIX waitpid */
     return Py_BuildValue("Ni", PyLong_FromPid(pid), status << 8);
 }
+
+#elif defined(__native_client__)
+
+/* zerovm shouldn't do process management */
+
+PyDoc_STRVAR(posix_waitpid__doc__,
+"waitpid(pid, options) -> (pid, status)\n\n"
+"Does nothing, always returns -1");
+
+static PyObject *
+posix_waitpid(PyObject *self, PyObject *args)
+{
+    pid_t pid;
+    int options;
+    WAIT_TYPE status;
+    WAIT_STATUS_INT(status) = 0;
+
+    if (!PyArg_ParseTuple(args, PARSE_PID "i:waitpid", &pid, &options))
+        return NULL;
+    Py_BEGIN_ALLOW_THREADS
+    /* zrt stub implementation returns -1 */
+    pid = waitpid(pid, &status, options);
+    Py_END_ALLOW_THREADS
+    if (pid == -1)
+        return posix_error();
+
+    /* shift the status left a byte so this is more like the POSIX waitpid */
+    return Py_BuildValue("Ni", PyLong_FromPid(pid), status << 8);
+}
+
 #endif /* HAVE_WAITPID || HAVE_CWAIT */
 
 #ifdef HAVE_WAIT
@@ -8830,7 +8860,7 @@ static PyMethodDef posix_methods[] = {
 #ifdef HAVE_WAIT4
     {"wait4",           posix_wait4, METH_VARARGS, posix_wait4__doc__},
 #endif /* HAVE_WAIT4 */
-#if defined(HAVE_WAITPID) || defined(HAVE_CWAIT)
+#if defined(HAVE_WAITPID) || defined(HAVE_CWAIT) || defined(__native_client__)
     {"waitpid",         posix_waitpid, METH_VARARGS, posix_waitpid__doc__},
 #endif /* HAVE_WAITPID */
 #ifdef HAVE_GETSID
