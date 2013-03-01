@@ -174,7 +174,7 @@ math mathmodule.c _math.c # -lm # math library functions, e.g. sin()
 _struct _struct.c	# binary structure packing/unpacking
 time timemodule.c # -lm # time operations and variables
 operator operator.c	# operator.add() and similar goodies
-#_testcapi _testcapimodule.c    # Python C API test module
+_testcapi _testcapimodule.c    # Python C API test module
 _random _randommodule.c	# Random number generator
 _collections _collectionsmodule.c # Container types
 itertools itertoolsmodule.c	# Functions creating iterators for efficient looping 
@@ -498,3 +498,4 @@ bz2 bz2module.c -I/home/ramp/soft/3rdparty/include -L/home/ramp/soft/3rdparty/li
 zlib zlibmodule.c -I/home/ramp/soft/3rdparty/include -L/home/ramp/soft/3rdparty/lib -lz
 _io -I$(srcdir)/Modules/_io _io/_iomodule.c _io/iobase.c _io/fileio.c _io/bytesio.c _io/bufferedio.c _io/textio.c _io/stringio.c
 _json _json.c
+_testcapi _testcapimodule.c

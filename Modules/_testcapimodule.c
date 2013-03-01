@@ -8,7 +8,11 @@
 #include "Python.h"
 #include <float.h>
 #include "structmember.h"
+
+#ifdef Py_BUILD_CORE 
+#undef Py_BUILD_CORE 
 #include "datetime.h"
+#endif
 
 #ifdef WITH_THREAD
 #include "pythread.h"
