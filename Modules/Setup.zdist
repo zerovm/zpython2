@@ -114,7 +114,9 @@ PYTHONPATH=$(COREPYTHONPATH)
 
 #_ctypes _ctypes/_ctypes.c _ctypes/callbacks.c _ctypes/callproc.c _ctypes/stgdict.c _ctypes/cfield.c -lffi -lzdl
 ztest ztestmodule.c # testing module for zerovm usages
-_sqlite3 _sqlite/cache.c _sqlite/connection.c _sqlite/cursor.c _sqlite/microprotocols.c _sqlite/module.c _sqlite/prepare_protocol.c _sqlite/row.c _sqlite/statement.c _sqlite/util.c -DMODULE_NAME=sqlite3 -DSQLITE_OMIT_LOAD_EXTENSION=1 -lsqlite3
+
+SQLITE_DEFS=-DMODULE_NAME=sqlite3 -DSQLITE_OMIT_LOAD_EXTENSION=1 
+_sqlite3 _sqlite/cache.c _sqlite/connection.c _sqlite/cursor.c _sqlite/microprotocols.c _sqlite/module.c _sqlite/prepare_protocol.c _sqlite/row.c _sqlite/statement.c _sqlite/util.c $(SQLITE_DEFS) -lsqlite3
 
 posix posixmodule.c		# posix (UNIX) system calls
 errno errnomodule.c		# posix (UNIX) errno values
