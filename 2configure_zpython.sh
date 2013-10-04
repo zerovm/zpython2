@@ -1,8 +1,8 @@
 #!/bin/bash
 
-NACL_TOOLCHAIN=${NACL_SDK_ROOT}/toolchain/linux_x86_glibc
-
-export PATH=${PATH}:${NACL_TOOLCHAIN}/bin
+SCRIPT=$(readlink -f "$0")
+SCRIPT_PATH=`dirname "$SCRIPT"`
+export ZPYTHON_ROOT=${SCRIPT_PATH}
 
 #to make sure copy rigth Modules/Setup
 cp pyconfig.h.zin pyconfig.h.in
@@ -11,23 +11,25 @@ cp Modules/Setup.zdist Modules/Setup
 #configure cpython to be built statically, also overrided LINKFORSHARED variable,
 #although rest variables has been set to link it statically by nacl-gcc
 export THIRDPARTYLIBS="-lbz2"
-export PYTHONPATH="${ZPYTHON_ROOT}/Modules:$${ZPYTHON_ROOT}/Lib:${ZPYTHON_ROOT}"
+export PYTHONPATH="${ZPYTHON_ROOT}/Modules:${ZPYTHON_ROOT}/Lib:${ZPYTHON_ROOT}"
 export LINKFORSHARED=\
-"-s -static -T ${NACL_TOOLCHAIN}/x86_64-nacl/lib64/ldscripts/elf64_nacl.x.static \
--melf64_nacl -m64 -L${ZRT_ROOT}/lib -L${ZRT_ROOT}/../3rdparty/lib -lzrt -lfs -lstdc++ -lzglibc ${THIRDPARTYLIBS}"
+"-s -static -T ${ZVM_PREFIX}/x86_64-nacl/lib64/ldscripts/elf64_nacl.x.static \
+-melf64_nacl -m64 -L${ZVM_PREFIX}/x86_64-nacl/lib -lzrt -lfs -lstdc++ ${THIRDPARTYLIBS}"
 export CC="x86_64-nacl-gcc"
-export CXX="x86_64-naclg++"
+export CXX="x86_64-nacl-g++"
 export AR="x86_64-nacl-ar"
 export RANLIB="x86_64-nacl-ranlib"
-export LD_LIBRARY_PATH=${NACL_TOOLCHAIN}"/x86_64-nacl/lib"
-export CFLAGS="-I${ZRT_ROOT}/lib "
-export LDFLAGS=" -s -static -static-libgcc"
-export LIBC="-lzglibc"
+export LD_LIBRARY_PATH=${ZVM_PREFIX}"/x86_64-nacl/lib"
+export CFLAGS=""
+export LINKFORSHARED=" "
+export HOSTPYTHON=./hostpython
+export HOSTPGEN=./Parser/hostpgen
+export LDFLAGS="-s -m64 -Wl,--no-export-dynamic -static-libgcc"
 
 ./configure \
 --host=x86_64-nacl \
---build=x86_64-linux-gnu \
---prefix=/python \
+--prefix=${ZPYTHON_ROOT}/install \
 --without-threads \
 --enable-shared=no \
---disable-shared
+--disable-shared \
+--with-pydebug

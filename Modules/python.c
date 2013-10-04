@@ -8,7 +8,7 @@
 
 int
 #ifdef __native_client__
-zmain(int argc, char **argv)    /*set zrt entry point*/
+main(int argc, char **argv)    /*set zrt entry point*/
 #else
 main(int argc, char **argv)
 #endif

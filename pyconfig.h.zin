@@ -910,8 +910,7 @@
 #undef HAVE_WAIT4
 
 /* Define to 1 if you have the `waitpid' function. */
-/* no waitpid in zerovm */
-/* #undef HAVE_WAITPID */
+#undef HAVE_WAITPID
 
 /* Define if the compiler provides a wchar.h header file. */
 #undef HAVE_WCHAR_H

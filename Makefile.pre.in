@@ -259,6 +259,7 @@ ASDLGEN=	$(srcdir)/Parser/asdl_c.py
 ##########################################################################
 # Python
 PYTHON_OBJS=	\
+		helper.o \
 		Python/_warnings.o \
 		Python/Python-ast.o \
 		Python/asdl.o \
