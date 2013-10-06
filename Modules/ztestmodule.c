@@ -9,7 +9,35 @@ static PyObject* record_get_key(MapReduceRecord* self, void* closure)
 }
 static int record_set_key(MapReduceRecord* self, PyObject* val, void* closure)
 {
-  return -1;
+  if (PyMemoryView_Check(val))
+  {
+    Py_buffer* buffer = PyMemoryView_GET_BUFFER(val);
+
+    const char* c = (char*)(buffer->buf);
+    /*set key data: pointer + key data length. using pointer to existing data*/
+    self->data->key_data.addr = (uintptr_t)c;
+    self->data->key_data.size = buffer->len;
+    self->data->own_key = EDataNotOwned;
+    memcpy( &self->data->key_hash, c, buffer->len );
+  }
+  else if (PyString_Check(val))
+  {
+    PyStringObject* string = (PyStringObject*)val;
+
+    const char* c = (char*)(string->ob_sval);
+    char* tmp = malloc(PyString_Size(string));
+    memcpy(tmp, c, (PyString_Size(string));
+    /*set key data: pointer + key data length. using pointer to existing data*/
+    self->data->key_data.addr = tmp;
+    self->data->key_data.size = PyString_Size(string);
+    self->data->own_key = EDataOwned;
+    // TODO: do not know waht to do with this
+//    memcpy(&self->data->key_hash, c, PyString_Size(string));
+  }
+  else
+    return -1;
+
+  return 0;
 }
 static PyObject* record_get_value(MapReduceRecord* self, void* closure)
 {
@@ -20,31 +48,25 @@ static PyObject* record_get_value(MapReduceRecord* self, void* closure)
 }
 static int record_set_value(MapReduceRecord* self, PyObject* val, void* closure)
 {
-  return -1;
+  if (!PyMemoryView_Check(val))
+    return -1;
+
+  Py_buffer* buffer = PyMemoryView_GET_BUFFER(val);
+
+  const char* c = (char*)(buffer->buf);
+  /*save as hash record key without changes to variable length struct member*/
+  /*interpret elasticdata->value.addr as 4bytes pointer and save data as binary*/
+  self->data->value.size = buffer->len;
+  self->data->value.addr = (uintptr_t)c;
+  self->data->own_value = EDataNotOwned;
+
+  return 0;
 }
-static void
-record_dealloc(MapReduceRecord* self)
-{
-  free(self->data);
-  self->data = NULL;
-  self->ob_type->tp_free((PyObject*)self);
-}
+
 static int
 record_init(MapReduceRecord *self, PyObject *args, PyObject *kwds)
 {
-  self->data = malloc(sizeof(ElasticBufItemData));
-
-  self->data->key_data.addr = 0;
-  self->data->key_data.size = 0;
-
-  self->data->value.addr = 0;
-  self->data->value.size = 0;
-
-  self->data->own_key = 0;
-  self->data->own_value = 0;
-
-  self->data->key_hash = 0;
-
+  self->data = 0;
   return 0;
 }
 static PyGetSetDef record_getseters[] = {
@@ -64,7 +86,7 @@ static PyTypeObject MapReduceRecordType = {
   "ztest.Record",		/* tp_name        */
   sizeof(MapReduceRecord),		/* tp_basicsize   */
   0,				/* tp_itemsize    */
-  (destructor)record_dealloc,				/* tp_dealloc     */
+  0,				/* tp_dealloc     */
   0,				/* tp_print       */
   0,				/* tp_getattr     */
   0,				/* tp_setattr     */
@@ -138,35 +160,39 @@ static PyObject* buffer_get_item_size(MapReduceBuffer* self)
   Py_INCREF(value);
   return value;
 }
-static PyObject* buffer_append(MapReduceBuffer* self, PyObject* args)
+static PyObject* buffer_append(MapReduceBuffer* self)
 {
-  Py_buffer* buffer = (Py_buffer*) malloc(sizeof(Py_buffer));
-  int record_size = 0;
-  int position = 0;
-  if (!PyArg_ParseTuple(args, "w*ii", buffer, &position, &record_size)) {
-    return NULL;
-  }
+//  Py_buffer* buffer = (Py_buffer*) malloc(sizeof(Py_buffer));
+//  int record_size = 0;
+//  int position = 0;
+//  if (!PyArg_ParseTuple(args, "w*ii", buffer, &position, &record_size)) {
+//    return NULL;
+//  }
 
   ElasticBufItemData* elasticdata =
-      (ElasticBufItemData*)BufferItemPointer( self->data,
-                                              AddBufferItemVirtually(self->data) );
-  const int HASH_SIZE = 10;
-  const int TERRASORT_RECORD_SIZE = record_size;
+      (ElasticBufItemData*)BufferItemPointer(self->data,
+                                             AddBufferItemVirtually(self->data));
+//  const int HASH_SIZE = 10;
+//  const int TERRASORT_RECORD_SIZE = record_size;
 
-  const char* c = &((char*)(buffer->buf))[position];
-  /*set key data: pointer + key data length. using pointer to existing data*/
-  elasticdata->key_data.addr = (uintptr_t)c;
-  elasticdata->key_data.size = HASH_SIZE;
-  elasticdata->own_key = EDataNotOwned;
-  /*save as hash record key without changes to variable length struct member*/
-  memcpy( &elasticdata->key_hash, c, HASH_SIZE );
-  /*interpret elasticdata->value.addr as 4bytes pointer and save data as binary*/
-  elasticdata->value.size = TERRASORT_RECORD_SIZE - HASH_SIZE;
-  elasticdata->value.addr = (uintptr_t)c + HASH_SIZE;
-  elasticdata->own_value = EDataNotOwned;
+//  const char* c = &((char*)(buffer->buf))[position];
+//  /*set key data: pointer + key data length. using pointer to existing data*/
+//  elasticdata->key_data.addr = (uintptr_t)c;
+//  elasticdata->key_data.size = HASH_SIZE;
+//  elasticdata->own_key = EDataNotOwned;
+//  /*save as hash record key without changes to variable length struct member*/
+//  memcpy( &elasticdata->key_hash, c, HASH_SIZE );
+//  /*interpret elasticdata->value.addr as 4bytes pointer and save data as binary*/
+//  elasticdata->value.size = TERRASORT_RECORD_SIZE - HASH_SIZE;
+//  elasticdata->value.addr = (uintptr_t)c + HASH_SIZE;
+//  elasticdata->own_value = EDataNotOwned;
 
-  Py_INCREF(Py_None);
-  return Py_None;
+  PyObject* record = MapReduceRecord_FromElasticBufItemData(elasticdata);
+  fprintf(stderr, "buffer %p out addr=%p addr=%p\n",
+          self->data,
+          (void*)elasticdata->key_data.addr,
+          (void*)elasticdata->value.addr);
+  return record;
 }
 
 static PyMethodDef MapReduceBufferMethods[] = {
@@ -182,12 +208,35 @@ static PyMethodDef MapReduceBufferMethods[] = {
   {"item_size", (PyCFunction)buffer_get_item_size, METH_NOARGS,
    "Return the item size"
   },
-  {"append", (PyCFunction)buffer_append, METH_VARARGS,
+  {"append", (PyCFunction)buffer_append, METH_NOARGS,
    "append record"
   },
   {NULL}  /* Sentinel */
 };
 
+PyObject* buffer_iter(PyObject *self)
+{
+  MapReduceBuffer *buffer = (MapReduceBuffer *)self;
+  buffer->index = 0;
+  Py_INCREF(self);
+  return self;
+}
+PyObject* buffer_iternext(PyObject *self)
+{
+  MapReduceBuffer *buffer = (MapReduceBuffer *)self;
+  if (buffer->index < buffer->data->header.count)
+  {
+    PyObject* record = MapReduceRecord_FromElasticBufItemData(
+                         (ElasticBufItemData*)BufferItemPointer(buffer->data, buffer->index));
+    PyObject *tmp = Py_BuildValue("O", record);
+    buffer->index++;
+    return tmp;
+  } else {
+    /* Raising of standard StopIteration exception with empty value. */
+    PyErr_SetNone(PyExc_StopIteration);
+    return NULL;
+  }
+}
 
 
 static PyTypeObject MapReduceBufferType = {
@@ -211,14 +260,14 @@ static PyTypeObject MapReduceBufferType = {
   0,				/* tp_getattro    */
   0,				/* tp_setattro    */
   0,				/* tp_as_buffer   */
-  Py_TPFLAGS_DEFAULT,		/* tp_flags       */
-  "Simple objects are simple.",	/* tp_doc         */
+  Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_ITER,		/* tp_flags       */
+  "Buffer object",	/* tp_doc         */
   0,		               /* tp_traverse */
   0,		               /* tp_clear */
   0,		               /* tp_richcompare */
   0,		               /* tp_weaklistoffset */
-  0,		               /* tp_iter */
-  0,		               /* tp_iternext */
+  buffer_iter,		               /* tp_iter */
+  buffer_iternext,		               /* tp_iternext */
   MapReduceBufferMethods,             /* tp_methods */
   0,             /* tp_members */
   0,                         /* tp_getset */
@@ -272,6 +321,7 @@ PyObject* MapReduceBuffer_FromBuffer(Buffer* buffer)
 {
   MapReduceBuffer* buf = PyObject_NEW(MapReduceBuffer, &MapReduceBufferType);
   buf->data = buffer;
+  buf->index = 0;
   Py_INCREF(buf);
 
   return (PyObject*)buf;

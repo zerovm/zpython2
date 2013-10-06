@@ -16,6 +16,7 @@ typedef struct {
   PyObject_HEAD
   /* Type-specific fields go here. */
   Buffer* data;
+  int index;
 } MapReduceBuffer;
 
 PyObject* MapReduceRecord_FromElasticBufItemData(ElasticBufItemData* item);
