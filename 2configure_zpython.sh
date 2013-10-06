@@ -24,7 +24,7 @@ export CFLAGS=""
 export LINKFORSHARED=" "
 export HOSTPYTHON=./hostpython
 export HOSTPGEN=./Parser/hostpgen
-export LDFLAGS="-s -m64 -Wl,--no-export-dynamic -static-libgcc"
+export LDFLAGS="-m64 -Wl,--no-export-dynamic -static-libgcc"
 
 ./configure \
 --host=x86_64-nacl \
