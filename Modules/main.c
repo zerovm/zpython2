@@ -5,6 +5,10 @@
 #include "code.h" /* For CO_FUTURE_DIVISION */
 #include "import.h"
 
+#ifdef __native_client__
+#include <zvm.h>
+#endif
+
 #ifdef __VMS
 #include <unixlib.h>
 #endif
@@ -578,7 +582,9 @@ Py_Main(int argc, char **argv)
         else
             Py_DECREF(v);
     }
-
+#ifdef __native_client__
+    zvm_fork();
+#endif
     if (command) {
         sts = PyRun_SimpleStringFlags(command, &cf) != 0;
         free(command);
