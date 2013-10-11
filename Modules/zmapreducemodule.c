@@ -2,6 +2,17 @@
 
 #include "mapreduce/elastic_mr_item.h"
 
+static size_t hash_size = sizeof(uint32_t);
+
+static PyObject* module_set_hash(PyObject* self, PyObject* args)
+{
+  if (!PyArg_ParseTuple(args, "n", &hash_size))
+    return NULL;
+
+  Py_INCREF(Py_None);
+  return Py_None;
+}
+
 typedef struct {
   PyObject_HEAD
   /* Type-specific fields go here. */
@@ -85,6 +96,34 @@ static int record_set_value(MapReduceRecord* self, PyObject* val, void* closure)
   return 0;
 }
 
+static PyObject* record_get_hash(MapReduceRecord* self, void* closure)
+{
+  // TODO: hash size! where to get, where to store
+  PyObject* key = PyString_FromStringAndSize((char*)&self->data->key_hash,
+                                             hash_size);
+  return key;
+}
+static int record_set_hash(MapReduceRecord* self, PyObject* val, void* closure)
+{
+  if (PyMemoryView_Check(val))
+  {
+    Py_buffer* buffer = PyMemoryView_GET_BUFFER(val);
+
+    const char* c = (char*)(buffer->buf);
+    /*set key data: pointer + key data length. using pointer to existing data*/
+    memcpy( &self->data->key_hash, c, hash_size );
+  }
+  else if (PyString_Check(val))
+  {
+    const char* c = PyString_AsString(val);
+    memcpy(&self->data->key_hash, c, hash_size);
+  }
+  else
+    return -1;
+
+  // decref val?
+  return 0;
+}
 
 static int
 record_init(MapReduceRecord *self, PyObject *args, PyObject *kwds)
@@ -100,6 +139,10 @@ static PyGetSetDef record_getseters[] = {
   {"value",
    (getter)record_get_value, (setter)record_set_value,
    "record value",
+   NULL},
+  {"hash",
+   (getter)record_get_hash, (setter)record_set_hash,
+   "hash value",
    NULL},
   {NULL}  /* Sentinel */
 };
@@ -164,6 +207,15 @@ static PyObject* buffer_append(MapReduceBuffer* self)
   PyObject* record = MapReduceRecord_FromElasticBufItemData(elasticdata);
   return record;
 }
+
+static PyObject* buffer_clear(MapReduceBuffer* self)
+{
+  self->data->header.count = 0;
+
+  Py_INCREF(Py_None);
+  return Py_None;
+}
+
 PyObject* buffer_GetItem(MapReduceBuffer *self, Py_ssize_t i)
 {
   if (self->data->header.count <= i)
@@ -187,6 +239,9 @@ Py_ssize_t buffer_Size(MapReduceBuffer* self)
 static PyMethodDef MapReduceBufferMethods[] = {
   {"append", (PyCFunction)buffer_append, METH_NOARGS,
    "append record"
+  },
+  {"clear", (PyCFunction)buffer_clear, METH_NOARGS,
+   "clear buffer, resetting it header count to 0"
   },
   {NULL}  /* Sentinel */
 };
@@ -222,10 +277,9 @@ PyObject* buffer_iternext(PyObject *self)
     // Py_DECREF(record); ?
     PyObject *tmp = Py_BuildValue("O", record);
     buffer->index++;
-//    Py_DECREF(record);
+    Py_DECREF(record);
     return tmp;
   } else {
-    Py_DECREF(self);
     /* Raising of standard StopIteration exception with empty value. */
     PyErr_SetNone(PyExc_StopIteration);
     return NULL;
@@ -291,6 +345,13 @@ static PyTypeObject MapReduceBufferType = {
   buffer_new,                 /* tp_new */
 };
 
+static PyMethodDef MapReduceModuleMethods[] = {
+  {"hash", (PyCFunction)module_set_hash, METH_VARARGS,
+   "Set hash size"
+  },
+  {NULL}  /* Sentinel */
+};
+
 
 PyMODINIT_FUNC
 initzmapreduce(void)
@@ -305,7 +366,7 @@ initzmapreduce(void)
   if (PyType_Ready(&MapReduceBufferType) < 0)
     return;
 
-  m = Py_InitModule3("zmapreduce", NULL,
+  m = Py_InitModule3("zmapreduce", MapReduceModuleMethods,
                      "Example module that creates an extension type.");
   if (m == NULL)
     return;
