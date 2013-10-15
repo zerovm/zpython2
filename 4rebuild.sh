@@ -18,5 +18,9 @@ export BUILDARCH=x86_64-linux-gnu
 #in filesystem in order to run python on zerovm+zrt
 
 make python
+# update tar file
+echo "Creating python.tar.."
+tar cf python.tar -C install/ include/ lib/ --exclude=libpython2.7.a
+echo "Done!"
 
 
