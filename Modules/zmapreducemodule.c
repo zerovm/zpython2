@@ -6,11 +6,10 @@
 #include "networking/channels_conf.h"
 #include "networking/channels_conf_reader.h"
 
-static size_t hash_size = sizeof(uint32_t);
 static struct ChannelsConfigInterface chan_if;
 static struct MapReduceUserIf mr_if;
 static char map_node_type_text[] = "map";
-static char red_node_type_text[] = "map";
+static char red_node_type_text[] = "red";
 
 static PyObject* PyComparatorHashFunc = 0;
 static PyObject* PyReduceFunc = 0;
@@ -36,6 +35,13 @@ ComparatorElasticBufItemByHashQSort(const void *p1, const void *p2){
   return ComparatorHash( &((ElasticBufItemData*)p1)->key_hash,
                          &((ElasticBufItemData*)p2)->key_hash );
 }
+
+static char*
+PrintableHash( char* str, const uint8_t* hash, int size){
+    memcpy(str, hash, mr_if.data.hash_size);
+    return str;
+}
+
 
 /*******************************************************************************
  * User map for MAP REDUCE
@@ -94,6 +100,7 @@ static int Reduce( const Buffer *reduced_buffer ){
   assert(PyReduceFunc);
 
   // create arguments for Reduce function call
+  // TODO: py_decref(mapreducebuffer) !!!
   PyObject* MapReduceBuffer = MapReduceBuffer_FromBuffer((Buffer*)reduced_buffer);
   PyObject* args = Py_BuildValue("(O)", MapReduceBuffer);
   // call python reduce routine
@@ -141,15 +148,6 @@ static int Combine( const Buffer *map_buffer,
   Py_DECREF(args);
 
   return 0;
-}
-
-static PyObject* module_set_hash(PyObject* self, PyObject* args)
-{
-  if (!PyArg_ParseTuple(args, "n", &hash_size))
-    return NULL;
-
-  Py_INCREF(Py_None);
-  return Py_None;
 }
 
 typedef struct {
@@ -239,7 +237,7 @@ static PyObject* record_get_hash(MapReduceRecord* self, void* closure)
 {
   // TODO: hash size! where to get, where to store
   PyObject* key = PyString_FromStringAndSize((char*)&self->data->key_hash,
-                                             hash_size);
+                                             mr_if.data.hash_size);
   return key;
 }
 static int record_set_hash(MapReduceRecord* self, PyObject* val, void* closure)
@@ -250,12 +248,12 @@ static int record_set_hash(MapReduceRecord* self, PyObject* val, void* closure)
 
     const char* c = (char*)(buffer->buf);
     /*set key data: pointer + key data length. using pointer to existing data*/
-    memcpy( &self->data->key_hash, c, hash_size );
+    memcpy( &self->data->key_hash, c, mr_if.data.hash_size );
   }
   else if (PyString_Check(val))
   {
     const char* c = PyString_AsString(val);
-    memcpy(&self->data->key_hash, c, hash_size);
+    memcpy(&self->data->key_hash, c, mr_if.data.hash_size);
   }
   else
     return -1;
@@ -487,7 +485,7 @@ static PyTypeObject MapReduceBufferType = {
 static PyObject* module_setup_map_channels(PyObject* self, PyObject* args)
 {
   int ownnodeid = -1;
-  if (!PyArg_Parse(args, "i", &ownnodeid))
+  if (!PyArg_ParseTuple(args, "i", &ownnodeid))
     return NULL;
 
   SetupChannelsConfigInterface( &chan_if, ownnodeid, EMapNode );
@@ -547,7 +545,7 @@ static PyObject* module_setup_map_channels(PyObject* self, PyObject* args)
 static PyObject* module_setup_reduce_channels(PyObject* self, PyObject* args)
 {
   int ownnodeid = -1;
-  if (!PyArg_Parse(args, "i", &ownnodeid))
+  if (!PyArg_ParseTuple(args, "i", &ownnodeid))
     return NULL;
   SetupChannelsConfigInterface( &chan_if, ownnodeid, EReduceNode );
 
@@ -576,50 +574,63 @@ static PyObject* module_setup_reduce_channels(PyObject* self, PyObject* args)
 
 static PyObject* module_setup_callbacks(PyObject* self, PyObject* args)
 {
-  PyObject * module = PyImport_AddModule("__main__"); // borrowed reference
+  memset(&mr_if, '\0', sizeof(struct MapReduceUserIf));
 
-  assert(module);                                     // __main__ should always exist
-  PyObject * dictionary = PyModule_GetDict(module);   // borrowed reference
-  assert(dictionary);                                 // __main__ should have a dictionary
+  if (!PyArg_ParseTuple(args, "OOOOii",
+                        &PyMapFunc,
+                        &PyReduceFunc,
+                        &PyCombineFunc,
+                        &PyComparatorHashFunc,
+                        &mr_if.data.mr_item_size,
+                        &mr_if.data.hash_size))
+    return NULL;
 
-  PyComparatorHashFunc =
-      PyDict_GetItemString(dictionary, "ComparatorHash");     // borrowed reference
   if (PyComparatorHashFunc && PyCallable_Check(PyComparatorHashFunc))
   {
     mr_if.ComparatorHash = ComparatorHash;
     mr_if.ComparatorMrItem = ComparatorElasticBufItemByHashQSort;
   }
 
-  PyReduceFunc =
-      PyDict_GetItemString(dictionary, "Reduce");     // borrowed reference
   if (PyReduceFunc && PyCallable_Check(PyReduceFunc))
     mr_if.Reduce = Reduce;
 
-  PyMapFunc =
-      PyDict_GetItemString(dictionary, "Map");     // borrowed reference
   if (PyMapFunc && PyCallable_Check(PyMapFunc))
     mr_if.Map = Map;
 
-  PyCombineFunc =
-      PyDict_GetItemString(dictionary, "Combine");     // borrowed reference
   if (PyCombineFunc && PyCallable_Check(PyCombineFunc))
     mr_if.Combine = Combine;
 
-  // TODO: define mritem record size, hash size, value addr is data
+  // TODO: value addr is data
+  mr_if.data.value_addr_is_data = 0;
+  mr_if.DebugHashAsString = PrintableHash;
 
 
   Py_INCREF(Py_None);
   return Py_None;
 }
 
+static PyObject* module_run_map_main(PyObject* self)
+{
+  PyObject* ret = PyLong_FromLong(MapNodeMain(&mr_if, &chan_if));
+
+  CloseChannels(&chan_if);
+  return ret;
+}
+static PyObject* module_run_reduce_main(PyObject* self)
+{
+  PyObject* ret = PyLong_FromLong(ReduceNodeMain(&mr_if, &chan_if));
+
+  CloseChannels(&chan_if);
+  return ret;
+}
+
 
 static PyMethodDef MapReduceModuleMethods[] = {
-  {"hash", (PyCFunction)module_set_hash, METH_VARARGS,
-   "Set hash size"
-  },
-  {"_module_set_callbacks", (PyCFunction)module_setup_callbacks, METH_VARARGS, "Set hash size"},
-  {"_module_setup_map_channels", (PyCFunction)module_setup_map_channels, METH_VARARGS, "Set hash size"},
-  {"_module_setup_reduce_channels", (PyCFunction)module_setup_reduce_channels, METH_VARARGS, "Set hash size"},
+  {"_module_set_callbacks", (PyCFunction)module_setup_callbacks, METH_VARARGS, ""},
+  {"_module_setup_map_channels", (PyCFunction)module_setup_map_channels, METH_VARARGS, ""},
+  {"_module_setup_reduce_channels", (PyCFunction)module_setup_reduce_channels, METH_VARARGS, ""},
+  {"_module_run_map_main", (PyCFunction)module_run_map_main, METH_NOARGS, ""},
+  {"_module_run_reduce_main", (PyCFunction)module_run_reduce_main, METH_NOARGS, ""},
   {NULL}  /* Sentinel */
 };
 
