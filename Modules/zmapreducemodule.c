@@ -79,8 +79,10 @@ static int Map(const char *data,
 
   // call python reduce routine
   PyObject* val = PyObject_CallObject(PyMapFunc, args);
-  //  TODO: uncomment and fix that!
-  //  Py_DECREF(args);
+  Py_DECREF(args);
+  Py_DECREF(MapReduceBuffer);
+  free(buffer);
+  Py_DECREF(mv);
 
   if (!val) {
     // error happened
@@ -100,9 +102,9 @@ static int Reduce( const Buffer *reduced_buffer ){
   assert(PyReduceFunc);
 
   // create arguments for Reduce function call
-  // TODO: py_decref(mapreducebuffer) !!!
   PyObject* MapReduceBuffer = MapReduceBuffer_FromBuffer((Buffer*)reduced_buffer);
   PyObject* args = Py_BuildValue("(O)", MapReduceBuffer);
+  Py_DECREF(MapReduceBuffer);
   // call python reduce routine
   PyObject* val = PyObject_CallObject(PyReduceFunc, args);
   Py_DECREF(args);
@@ -138,6 +140,10 @@ static int Combine( const Buffer *map_buffer,
                                  MapReduceBufferOutput);
   // call python reduce routine
   PyObject* val = PyObject_CallObject(PyCombineFunc, args);
+  Py_DECREF(MapReduceBufferInput);
+  Py_DECREF(MapReduceBufferOutput);
+  Py_DECREF(args);
+
   if (!val)
   {
     PyErr_Print();
@@ -145,8 +151,6 @@ static int Combine( const Buffer *map_buffer,
   }
 
   Py_DECREF(val);
-  Py_DECREF(args);
-
   return 0;
 }
 
