@@ -1,8 +1,147 @@
 #include "zmapreducemodule.h"
 
 #include "mapreduce/elastic_mr_item.h"
+#include "mapreduce/map_reduce_lib.h"
+#include "networking/eachtoother_comm.h"
+#include "networking/channels_conf.h"
+#include "networking/channels_conf_reader.h"
 
 static size_t hash_size = sizeof(uint32_t);
+static struct ChannelsConfigInterface chan_if;
+static struct MapReduceUserIf mr_if;
+static char map_node_type_text[] = "map";
+static char red_node_type_text[] = "map";
+
+static PyObject* PyComparatorHashFunc = 0;
+static PyObject* PyReduceFunc = 0;
+static PyObject* PyMapFunc = 0;
+static PyObject* PyCombineFunc = 0;
+
+static int
+ComparatorHash(const void *h1, const void *h2){
+  PyObject* args = Py_BuildValue("(s#, s#)", h1, mr_if.data.hash_size,
+                                 h2, mr_if.data.hash_size);
+  PyObject* val = PyObject_CallObject(PyComparatorHashFunc, args);
+  Py_DECREF(args);
+
+  int ret = PyInt_AsLong(val);
+  Py_DECREF(val);
+  return ret;
+
+  //  return memcmp(h1,h2, sizeof(HASH_TYPE));
+}
+
+static int
+ComparatorElasticBufItemByHashQSort(const void *p1, const void *p2){
+  return ComparatorHash( &((ElasticBufItemData*)p1)->key_hash,
+                         &((ElasticBufItemData*)p2)->key_hash );
+}
+
+/*******************************************************************************
+ * User map for MAP REDUCE
+ * Readed data will organized as MrItem with a
+ * 10bytes key, 90bytes data and 10bytes hash exactly equal to the key
+ * @param size size of data must be multiple on 100,
+ * set MAP_CHUNK_SIZE env variable properly*/
+static int Map(const char *data,
+               size_t size,
+               int last_chunk,
+               Buffer *map_buffer ){
+
+  assert(PyMapFunc);
+
+  // create arguments for Reduce function call
+  // MapReduceBuffer to fill
+  PyObject* MapReduceBuffer = MapReduceBuffer_FromBuffer(map_buffer);
+  // buffer and memoryview to scan for raw data
+  Py_buffer* buffer = (Py_buffer*) malloc(sizeof(Py_buffer));
+  PyBuffer_FillInfo(buffer, NULL, (void*)data, size, 0, PyBUF_CONTIG);
+  PyObject* mv = PyMemoryView_FromBuffer(buffer);
+  // size and last_chunk vars
+  PyObject* args = Py_BuildValue("(OniO)",
+                                 mv,
+                                 size,
+                                 last_chunk,
+                                 MapReduceBuffer);
+
+  fprintf(stderr, "before  addr=%p buffer count = %d, size = %d data=%p pybuffer=%p\n",
+          map_buffer,
+          map_buffer->header.count,
+          map_buffer->header.buf_size,
+          data,
+          buffer->buf);
+
+  // call python reduce routine
+  PyObject* val = PyObject_CallObject(PyMapFunc, args);
+  //  TODO: uncomment and fix that!
+  //  Py_DECREF(args);
+
+  if (!val) {
+    // error happened
+    return -1;
+  }
+
+  fprintf(stderr, "after buffer count = %d, size = %d \n", map_buffer->header.count,
+          map_buffer->header.buf_size);
+
+  int ret = PyInt_AsLong(val);
+  Py_DECREF(val);
+  return ret;
+
+}
+
+static int Reduce( const Buffer *reduced_buffer ){
+  assert(PyReduceFunc);
+
+  // create arguments for Reduce function call
+  PyObject* MapReduceBuffer = MapReduceBuffer_FromBuffer((Buffer*)reduced_buffer);
+  PyObject* args = Py_BuildValue("(O)", MapReduceBuffer);
+  // call python reduce routine
+  PyObject* val = PyObject_CallObject(PyReduceFunc, args);
+  Py_DECREF(args);
+
+  if (!val) {
+    // error happened
+    return -1;
+  }
+
+  int ret = PyInt_AsLong(val);
+  Py_DECREF(val);
+
+  // do cleanup after pyreduce
+  int i;
+  for ( i=0; i < reduced_buffer->header.count; i++ ){
+    ElasticBufItemData* elasticdata = (ElasticBufItemData*)BufferItemPointer( reduced_buffer, i );
+    TRY_FREE_MRITEM_DATA(elasticdata);
+  }
+  return ret;
+
+}
+
+
+
+static int Combine( const Buffer *map_buffer,
+                    Buffer *reduce_buffer ){
+
+  assert (PyCombineFunc);
+  PyObject* MapReduceBufferOutput = MapReduceBuffer_FromBuffer((Buffer*)reduce_buffer);
+  PyObject* MapReduceBufferInput = MapReduceBuffer_FromBuffer((Buffer*)map_buffer);
+  PyObject* args = Py_BuildValue("(OO)",
+                                 MapReduceBufferInput,
+                                 MapReduceBufferOutput);
+  // call python reduce routine
+  PyObject* val = PyObject_CallObject(PyCombineFunc, args);
+  if (!val)
+  {
+    PyErr_Print();
+    exit(-1);
+  }
+
+  Py_DECREF(val);
+  Py_DECREF(args);
+
+  return 0;
+}
 
 static PyObject* module_set_hash(PyObject* self, PyObject* args)
 {
@@ -50,7 +189,7 @@ static int record_set_key(MapReduceRecord* self, PyObject* val, void* closure)
     self->data->key_data.size = PyString_Size((PyObject*)string);
     self->data->own_key = EDataOwned;
     // TODO: do not know waht to do with this
-//    memcpy(&self->data->key_hash, c, PyString_Size(string));
+    //    memcpy(&self->data->key_hash, c, PyString_Size(string));
   }
   else
     return -1;
@@ -149,7 +288,7 @@ static PyGetSetDef record_getseters[] = {
 static PyTypeObject MapReduceRecordType = {
   PyObject_HEAD_INIT(NULL)
   0,				/* ob_size        */
-  "zmapreduce.Record",		/* tp_name        */
+  "_zmapreduce.Record",		/* tp_name        */
   sizeof(MapReduceRecord),		/* tp_basicsize   */
   0,				/* tp_itemsize    */
   0,				/* tp_dealloc     */
@@ -306,7 +445,7 @@ int buffer_init(PyObject *self, PyObject *args, PyObject *kwds)
 static PyTypeObject MapReduceBufferType = {
   PyObject_HEAD_INIT(NULL)
   0,				/* ob_size        */
-  "zmapreduce.Buffer",		/* tp_name        */
+  "_zmapreduce.Buffer",		/* tp_name        */
   sizeof(MapReduceBuffer),		/* tp_basicsize   */
   0,				/* tp_itemsize    */
   0,				/* tp_dealloc     */
@@ -345,16 +484,148 @@ static PyTypeObject MapReduceBufferType = {
   buffer_new,                 /* tp_new */
 };
 
+static PyObject* module_setup_map_channels(PyObject* self, PyObject* args)
+{
+  int ownnodeid = -1;
+  if (!PyArg_Parse(args, "i", &ownnodeid))
+    return NULL;
+
+  SetupChannelsConfigInterface( &chan_if, ownnodeid, EMapNode );
+
+  /***********************************************************************
+   * setup network configuration of cluster: */
+  int res = -1;
+  /* add manifest channels to read from another map nodes */
+  res = AddAllChannelsRelatedToNodeTypeFromDir( &chan_if,
+                                                IN_DIR,
+                                                EChannelModeRead,
+                                                EMapNode,
+                                                map_node_type_text );
+  assert( res == 0 );
+  /* add manifest channels to read from another reduce nodes */
+  res = AddAllChannelsRelatedToNodeTypeFromDir( &chan_if,
+                                                IN_DIR,
+                                                EChannelModeRead,
+                                                EReduceNode,
+                                                red_node_type_text );
+  assert( res == 0 );
+  /* add manifest channels to write into another map nodes */
+  res = AddAllChannelsRelatedToNodeTypeFromDir( &chan_if,
+                                                OUT_DIR,
+                                                EChannelModeWrite,
+                                                EMapNode,
+                                                map_node_type_text );
+  assert( res == 0 );
+  /* add manifest channels to write into another reduce nodes */
+  res = AddAllChannelsRelatedToNodeTypeFromDir( &chan_if,
+                                                OUT_DIR,
+                                                EChannelModeWrite,
+                                                EReduceNode,
+                                                red_node_type_text );
+  assert( res == 0 );
+  /*add input channel into config*/
+  res = chan_if.AddChannel( &chan_if,
+                            EInputOutputNode,
+                            1, /*nodeid*/
+                            0, /* STDIN associated input mode*/
+                            EChannelModeRead ) != NULL? 0: -1;
+
+  /*add fake channel into config, to access map nodes count later via
+    channel interface at runtime; if we are not add this then mapreduce
+    will fail because map nodes count will unavailable*/
+  res = chan_if.AddChannel( &chan_if,
+                            EMapNode,
+                            ownnodeid,
+                            -1,
+                            EChannelModeRead ) != NULL? 0: -1;
+  assert( res == 0 );
+
+  Py_INCREF(Py_None);
+  return Py_None;
+}
+
+static PyObject* module_setup_reduce_channels(PyObject* self, PyObject* args)
+{
+  int ownnodeid = -1;
+  if (!PyArg_Parse(args, "i", &ownnodeid))
+    return NULL;
+  SetupChannelsConfigInterface( &chan_if, ownnodeid, EReduceNode );
+
+  /***********************************************************************
+   * setup network configuration of cluster: */
+  int res = -1;
+  /* add manifest channels to read from map nodes */
+  res = AddAllChannelsRelatedToNodeTypeFromDir( &chan_if,
+                                                IN_DIR,
+                                                EChannelModeRead,
+                                                EMapNode,
+                                                map_node_type_text );
+  assert( res == 0 );
+  /*associate stdout with results output of reduce node*/
+  res = chan_if.AddChannel( &chan_if,
+                            EInputOutputNode,
+                            EReduceNode,
+                            1, // STDOUT
+                            EChannelModeWrite ) != NULL? 0: -1;
+
+  assert( res == 0 );
+
+  Py_INCREF(Py_None);
+  return Py_None;
+}
+
+static PyObject* module_setup_callbacks(PyObject* self, PyObject* args)
+{
+  PyObject * module = PyImport_AddModule("__main__"); // borrowed reference
+
+  assert(module);                                     // __main__ should always exist
+  PyObject * dictionary = PyModule_GetDict(module);   // borrowed reference
+  assert(dictionary);                                 // __main__ should have a dictionary
+
+  PyComparatorHashFunc =
+      PyDict_GetItemString(dictionary, "ComparatorHash");     // borrowed reference
+  if (PyComparatorHashFunc && PyCallable_Check(PyComparatorHashFunc))
+  {
+    mr_if.ComparatorHash = ComparatorHash;
+    mr_if.ComparatorMrItem = ComparatorElasticBufItemByHashQSort;
+  }
+
+  PyReduceFunc =
+      PyDict_GetItemString(dictionary, "Reduce");     // borrowed reference
+  if (PyReduceFunc && PyCallable_Check(PyReduceFunc))
+    mr_if.Reduce = Reduce;
+
+  PyMapFunc =
+      PyDict_GetItemString(dictionary, "Map");     // borrowed reference
+  if (PyMapFunc && PyCallable_Check(PyMapFunc))
+    mr_if.Map = Map;
+
+  PyCombineFunc =
+      PyDict_GetItemString(dictionary, "Combine");     // borrowed reference
+  if (PyCombineFunc && PyCallable_Check(PyCombineFunc))
+    mr_if.Combine = Combine;
+
+  // TODO: define mritem record size, hash size, value addr is data
+
+
+  Py_INCREF(Py_None);
+  return Py_None;
+}
+
+
 static PyMethodDef MapReduceModuleMethods[] = {
   {"hash", (PyCFunction)module_set_hash, METH_VARARGS,
    "Set hash size"
   },
+  {"_module_set_callbacks", (PyCFunction)module_setup_callbacks, METH_VARARGS, "Set hash size"},
+  {"_module_setup_map_channels", (PyCFunction)module_setup_map_channels, METH_VARARGS, "Set hash size"},
+  {"_module_setup_reduce_channels", (PyCFunction)module_setup_reduce_channels, METH_VARARGS, "Set hash size"},
   {NULL}  /* Sentinel */
 };
 
 
 PyMODINIT_FUNC
-initzmapreduce(void)
+init_zmapreduce(void)
 {
   PyObject* m;
 
@@ -366,7 +637,7 @@ initzmapreduce(void)
   if (PyType_Ready(&MapReduceBufferType) < 0)
     return;
 
-  m = Py_InitModule3("zmapreduce", MapReduceModuleMethods,
+  m = Py_InitModule3("_zmapreduce", MapReduceModuleMethods,
                      "Example module that creates an extension type.");
   if (m == NULL)
     return;
