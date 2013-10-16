@@ -26,8 +26,10 @@ ComparatorHash(const void *h1, const void *h2){
   int ret = PyInt_AsLong(val);
   Py_DECREF(val);
   return ret;
-
-  //  return memcmp(h1,h2, sizeof(HASH_TYPE));
+}
+static int FallBackComparatorHash(const void *h1, const void *h2)
+{
+  return memcmp(h1,h2, mr_if.data.hash_size);
 }
 
 static int
@@ -35,6 +37,12 @@ ComparatorElasticBufItemByHashQSort(const void *p1, const void *p2){
   return ComparatorHash( &((ElasticBufItemData*)p1)->key_hash,
                          &((ElasticBufItemData*)p2)->key_hash );
 }
+static int
+FallBackComparatorElasticBufItemByHashQSort(const void *p1, const void *p2){
+  return FallBackComparatorHash( &((ElasticBufItemData*)p1)->key_hash,
+                         &((ElasticBufItemData*)p2)->key_hash );
+}
+
 
 static char*
 PrintableHash( char* str, const uint8_t* hash, int size){
@@ -177,7 +185,6 @@ static int record_set_key(MapReduceRecord* self, PyObject* val, void* closure)
     self->data->key_data.addr = (uintptr_t)c;
     self->data->key_data.size = buffer->len;
     self->data->own_key = EDataNotOwned;
-    memcpy( &self->data->key_hash, c, buffer->len );
   }
   else if (PyString_Check(val))
   {
@@ -349,6 +356,28 @@ static PyObject* buffer_append(MapReduceBuffer* self)
   return record;
 }
 
+static PyObject* buffer_append_record(MapReduceBuffer* self, PyObject* args)
+{
+  PyObject* key = 0;
+  PyObject* value = 0;
+  PyObject* hash = 0;
+
+  if (!PyArg_ParseTuple(args, "OOO", &key, &value, &hash))
+    return NULL;
+
+  ElasticBufItemData* elasticdata =
+      (ElasticBufItemData*)BufferItemPointer(self->data,
+                                             AddBufferItemVirtually(self->data));
+
+  MapReduceRecord r;
+  r.data = elasticdata;
+  record_set_hash(&r, hash, NULL);
+  record_set_key(&r, key, NULL);
+  record_set_value(&r, value, NULL);
+
+  Py_RETURN_NONE;
+}
+
 static PyObject* buffer_clear(MapReduceBuffer* self)
 {
   self->data->header.count = 0;
@@ -379,6 +408,9 @@ Py_ssize_t buffer_Size(MapReduceBuffer* self)
 
 static PyMethodDef MapReduceBufferMethods[] = {
   {"append", (PyCFunction)buffer_append, METH_NOARGS,
+   "append record"
+  },
+  {"append_record", (PyCFunction)buffer_append_record, METH_VARARGS,
    "append record"
   },
   {"clear", (PyCFunction)buffer_clear, METH_NOARGS,
@@ -593,6 +625,11 @@ static PyObject* module_setup_callbacks(PyObject* self, PyObject* args)
   {
     mr_if.ComparatorHash = ComparatorHash;
     mr_if.ComparatorMrItem = ComparatorElasticBufItemByHashQSort;
+  }
+  else
+  {
+    mr_if.ComparatorHash = FallBackComparatorHash;
+    mr_if.ComparatorMrItem = FallBackComparatorElasticBufItemByHashQSort;
   }
 
   if (PyReduceFunc && PyCallable_Check(PyReduceFunc))
