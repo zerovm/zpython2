@@ -158,6 +158,13 @@ static int Combine( const Buffer *map_buffer,
     exit(-1);
   }
 
+  // do cleanup in map buffer
+  int i;
+  for ( i=0; i < map_buffer->header.count; i++ ){
+    ElasticBufItemData* elasticdata = (ElasticBufItemData*)BufferItemPointer(map_buffer, i );
+    TRY_FREE_MRITEM_DATA(elasticdata);
+  }
+
   Py_DECREF(val);
   return 0;
 }
