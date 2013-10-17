@@ -382,8 +382,7 @@ static PyObject* buffer_clear(MapReduceBuffer* self)
 {
   self->data->header.count = 0;
 
-  Py_INCREF(Py_None);
-  return Py_None;
+  Py_RETURN_NONE;
 }
 
 static PyObject* buffer_GetItem(MapReduceBuffer *self, Py_ssize_t i)
@@ -574,8 +573,7 @@ static PyObject* module_setup_map_channels(PyObject* self, PyObject* args)
                             EChannelModeRead ) != NULL? 0: -1;
   assert( res == 0 );
 
-  Py_INCREF(Py_None);
-  return Py_None;
+  Py_RETURN_NONE;
 }
 
 static PyObject* module_setup_reduce_channels(PyObject* self, PyObject* args)
@@ -604,8 +602,7 @@ static PyObject* module_setup_reduce_channels(PyObject* self, PyObject* args)
 
   assert( res == 0 );
 
-  Py_INCREF(Py_None);
-  return Py_None;
+  Py_RETURN_NONE;
 }
 
 static PyObject* module_setup_callbacks(PyObject* self, PyObject* args)
@@ -646,8 +643,7 @@ static PyObject* module_setup_callbacks(PyObject* self, PyObject* args)
   mr_if.DebugHashAsString = PrintableHash;
 
 
-  Py_INCREF(Py_None);
-  return Py_None;
+  Py_RETURN_NONE;
 }
 
 static PyObject* module_run_map_main(PyObject* self)
