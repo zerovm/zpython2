@@ -336,7 +336,7 @@ static PyTypeObject MapReduceRecordType = {
   0,                 /* tp_new */
 };
 
-PyObject* MapReduceRecord_FromElasticBufItemData(ElasticBufItemData* item)
+static PyObject* MapReduceRecord_FromElasticBufItemData(ElasticBufItemData* item)
 {
   MapReduceRecord* record = PyObject_NEW(MapReduceRecord, &MapReduceRecordType);
   record->data = item;
@@ -386,7 +386,7 @@ static PyObject* buffer_clear(MapReduceBuffer* self)
   return Py_None;
 }
 
-PyObject* buffer_GetItem(MapReduceBuffer *self, Py_ssize_t i)
+static PyObject* buffer_GetItem(MapReduceBuffer *self, Py_ssize_t i)
 {
   if (self->data->header.count <= i)
   {
@@ -401,7 +401,7 @@ PyObject* buffer_GetItem(MapReduceBuffer *self, Py_ssize_t i)
   return record;
 }
 
-Py_ssize_t buffer_Size(MapReduceBuffer* self)
+static Py_ssize_t buffer_Size(MapReduceBuffer* self)
 {
   return self->data->header.count;
 }
@@ -433,14 +433,14 @@ static PySequenceMethods MapReduceSequenceMethods = {
   0,
 };
 
-PyObject* buffer_iter(PyObject *self)
+static PyObject* buffer_iter(PyObject *self)
 {
   MapReduceBuffer *buffer = (MapReduceBuffer *)self;
   buffer->index = 0;
   Py_INCREF(self);
   return self;
 }
-PyObject* buffer_iternext(PyObject *self)
+static PyObject* buffer_iternext(PyObject *self)
 {
   MapReduceBuffer *buffer = (MapReduceBuffer *)self;
   if (buffer->index < buffer->data->header.count)
@@ -458,18 +458,18 @@ PyObject* buffer_iternext(PyObject *self)
     return NULL;
   }
 }
-PyObject* buffer_new(PyTypeObject *subtype, PyObject *args, PyObject *kwds)
+static PyObject* buffer_new(PyTypeObject *subtype, PyObject *args, PyObject *kwds)
 {
   PyErr_SetString(PyExc_Exception, "__new__: Creating buffer objects is not allowed!");
   return NULL;
 }
 
-PyObject* buffer_alloc(PyTypeObject *self, Py_ssize_t nitems)
+static PyObject* buffer_alloc(PyTypeObject *self, Py_ssize_t nitems)
 {
   PyErr_SetString(PyExc_Exception, "__alloc__: Creating buffer objects is not allowed!");
   return NULL;
 }
-int buffer_init(PyObject *self, PyObject *args, PyObject *kwds)
+static int buffer_init(PyObject *self, PyObject *args, PyObject *kwds)
 {
   PyErr_SetString(PyExc_Exception, "__init__: Creating buffer objects is not allowed!");
   return -1;
