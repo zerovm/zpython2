@@ -197,13 +197,13 @@ static int record_set_key(MapReduceRecord* self, PyObject* val, void* closure)
     self->data->key_data.addr = (intptr_t)tmp;
     self->data->key_data.size = PyString_Size((PyObject*)string);
     self->data->own_key = EDataOwned;
-    // TODO: do not know waht to do with this
-    //    memcpy(&self->data->key_hash, c, PyString_Size(string));
   }
   else
+  {
+    PyErr_SetString(PyExc_TypeError, "value should be of type 'str' or 'memoryview'");
     return -1;
+  }
 
-  // decref val?
   return 0;
 }
 static PyObject* record_get_value(MapReduceRecord* self, void* closure)
@@ -238,9 +238,11 @@ static int record_set_value(MapReduceRecord* self, PyObject* val, void* closure)
     self->data->own_key = EDataOwned;
   }
   else
+  {
+    PyErr_SetString(PyExc_TypeError, "value should be of type 'str' or 'memoryview'");
     return -1;
+  }
 
-  // decref val?
   return 0;
 }
 
@@ -267,9 +269,11 @@ static int record_set_hash(MapReduceRecord* self, PyObject* val, void* closure)
     memcpy(&self->data->key_hash, c, mr_if.data.hash_size);
   }
   else
+  {
+    PyErr_SetString(PyExc_TypeError, "value should be of type 'str' or 'memoryview'");
     return -1;
+  }
 
-  // decref val?
   return 0;
 }
 
@@ -371,9 +375,12 @@ static PyObject* buffer_append_record(MapReduceBuffer* self, PyObject* args)
 
   MapReduceRecord r;
   r.data = elasticdata;
-  record_set_hash(&r, hash, NULL);
-  record_set_key(&r, key, NULL);
-  record_set_value(&r, value, NULL);
+  if (record_set_hash(&r, hash, NULL) == -1)
+    return NULL;
+  if (record_set_key(&r, key, NULL) == -1)
+      return NULL;
+  if (record_set_value(&r, value, NULL) == -1)
+      return NULL;
 
   Py_RETURN_NONE;
 }
@@ -446,11 +453,8 @@ static PyObject* buffer_iternext(PyObject *self)
   {
     PyObject* record = MapReduceRecord_FromElasticBufItemData(
                          (ElasticBufItemData*)BufferItemPointer(buffer->data, buffer->index));
-    // Py_DECREF(record); ?
-    PyObject *tmp = Py_BuildValue("O", record);
     buffer->index++;
-    Py_DECREF(record);
-    return tmp;
+    return record;
   } else {
     /* Raising of standard StopIteration exception with empty value. */
     PyErr_SetNone(PyExc_StopIteration);
