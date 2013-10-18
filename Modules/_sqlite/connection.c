@@ -56,6 +56,20 @@ static void _sqlite3_result_error(sqlite3_context* ctx, const char* errmsg, int 
     PyErr_SetString(pysqlite_OperationalError, errmsg);
 #endif
 }
+static int sqlite_pragma (sqlite3* db, const char* request){
+    // get current database version of schema
+    static sqlite3_stmt *stmt_pragma;
+    int rc=0;
+
+    if( (rc=sqlite3_prepare_v2(db, request, -1, &stmt_pragma, NULL)) == SQLITE_OK) {
+        while(sqlite3_step(stmt_pragma) == SQLITE_ROW);
+    }
+    else{
+  rc = sqlite3_errcode(db);
+    }
+    sqlite3_finalize(stmt_pragma);
+    return rc;
+}
 
 int pysqlite_connection_init(pysqlite_Connection* self, PyObject* args, PyObject* kwargs)
 {
@@ -107,6 +121,7 @@ int pysqlite_connection_init(pysqlite_Connection* self, PyObject* args, PyObject
 
         Py_BEGIN_ALLOW_THREADS
         rc = sqlite3_open(PyString_AsString(database_utf8), &self->db);
+        rc = sqlite_pragma(self->db, "PRAGMA synchronous=OFF;");
         Py_END_ALLOW_THREADS
 
         Py_DECREF(database_utf8);
