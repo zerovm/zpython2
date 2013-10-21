@@ -115,8 +115,17 @@ vms_urandom(unsigned char *buffer, Py_ssize_t size, int raise)
 }
 #endif /* __VMS */
 
+#ifdef __native_client__
+static int
+zvm_urandom(char *buffer, Py_ssize_t size)
+{
+    size_t i;
+    for(i = 0; i < size; i++)
+        buffer[i] = random() % 256;
+}
+#endif
 
-#if !defined(MS_WINDOWS) && !defined(__VMS)
+#if !defined(MS_WINDOWS) && !defined(__VMS) && !defined(__native_client__)
 
 /* Read size bytes from /dev/urandom into buffer.
    Call Py_FatalError() on error. */
@@ -240,7 +249,11 @@ _PyOS_URandom(void *buffer, Py_ssize_t size)
 # ifdef __VMS
     return vms_urandom((unsigned char *)buffer, size, 1);
 # else
+#  ifdef __native_client__
+    return zvm_urandom((char *)buffer, size);
+#  else
     return dev_urandom_python((char*)buffer, size);
+#  endif
 # endif
 #endif
 }
@@ -299,7 +312,11 @@ _PyRandom_Init(void)
 # ifdef __VMS
         vms_urandom((unsigned char *)secret, secret_size, 0);
 # else
+#  ifdef __native_client__
+        zvm_urandom((char *)secret, secret_size);
+#  else
         dev_urandom_noraise((char*)secret, secret_size);
+#  endif
 # endif
 #endif
     }

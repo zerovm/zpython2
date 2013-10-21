@@ -583,7 +583,7 @@ Py_Main(int argc, char **argv)
             Py_DECREF(v);
     }
 #ifdef __native_client__
-    zvm_fork();
+    zfork();
 #endif
     if (command) {
         sts = PyRun_SimpleStringFlags(command, &cf) != 0;
