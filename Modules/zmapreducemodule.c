@@ -77,14 +77,6 @@ static int Map(const char *data,
                                  size,
                                  last_chunk,
                                  MapReduceBuffer);
-
-  fprintf(stderr, "before  addr=%p buffer count = %d, size = %d data=%p pybuffer=%p\n",
-          map_buffer,
-          map_buffer->header.count,
-          map_buffer->header.buf_size,
-          data,
-          buffer->buf);
-
   // call python reduce routine
   PyObject* val = PyObject_CallObject(PyMapFunc, args);
   Py_DECREF(args);
@@ -96,14 +88,9 @@ static int Map(const char *data,
     // error happened
     return -1;
   }
-
-  fprintf(stderr, "after buffer count = %d, size = %d \n", map_buffer->header.count,
-          map_buffer->header.buf_size);
-
   int ret = PyInt_AsLong(val);
   Py_DECREF(val);
   return ret;
-
 }
 
 static int Reduce( const Buffer *reduced_buffer ){
@@ -255,7 +242,6 @@ static int record_set_value(MapReduceRecord* self, PyObject* val, void* closure)
 
 static PyObject* record_get_hash(MapReduceRecord* self, void* closure)
 {
-  // TODO: hash size! where to get, where to store
   PyObject* key = PyString_FromStringAndSize((char*)&self->data->key_hash,
                                              mr_if.data.hash_size);
   return key;
@@ -267,7 +253,6 @@ static int record_set_hash(MapReduceRecord* self, PyObject* val, void* closure)
     Py_buffer* buffer = PyMemoryView_GET_BUFFER(val);
 
     const char* c = (char*)(buffer->buf);
-    /*set key data: pointer + key data length. using pointer to existing data*/
     memcpy( &self->data->key_hash, c, mr_if.data.hash_size );
   }
   else if (PyString_Check(val))
@@ -290,21 +275,39 @@ record_init(MapReduceRecord *self, PyObject *args, PyObject *kwds)
   self->data = 0;
   return 0;
 }
+
+PyDoc_STRVAR(record_key_doc,
+"Record key. Could be 'str' or memoryview object. Arbitrary sized.\n");
+PyDoc_STRVAR(record_value_doc,
+"Record value. Could be 'str' or memoryview object. Arbitrary sized.\n");
+PyDoc_STRVAR(record_hash_doc,
+"Record hash. Could be 'str' or memoryview object. Fixed sized.\n"
+"One should calculate 'hash' as some hash of key value.\n");
+
+
 static PyGetSetDef record_getseters[] = {
   {"key",
    (getter)record_get_key, (setter)record_set_key,
-   "record key",
+   record_key_doc,
    NULL},
   {"value",
    (getter)record_get_value, (setter)record_set_value,
-   "record value",
+   record_value_doc,
    NULL},
   {"hash",
    (getter)record_get_hash, (setter)record_set_hash,
-   "hash value",
+   record_hash_doc,
    NULL},
   {NULL}  /* Sentinel */
 };
+
+PyDoc_STRVAR(MapReduceRecordType_doc,
+"Record object. Represents key-value pair with hash value.\n"
+"\n"
+"Record internally points to some part of underlying buffer object.\n"
+"It could be created only as part of Buffer object interface: through 'append'\n"
+"methods. Creating records in another way may lead to application crash.\n"
+             );
 static PyTypeObject MapReduceRecordType = {
   PyObject_HEAD_INIT(NULL)
   0,				/* ob_size        */
@@ -327,7 +330,7 @@ static PyTypeObject MapReduceRecordType = {
   0,				/* tp_setattro    */
   0,				/* tp_as_buffer   */
   Py_TPFLAGS_DEFAULT,		/* tp_flags       */
-  "Simple objects are simple.",	/* tp_doc         */
+  MapReduceRecordType_doc,	/* tp_doc         */
   0,		               /* tp_traverse */
   0,		               /* tp_clear */
   0,		               /* tp_richcompare */
@@ -419,15 +422,23 @@ static Py_ssize_t buffer_Size(MapReduceBuffer* self)
   return self->data->header.count;
 }
 
+PyDoc_STRVAR(MapReduceBufferMethods_doc_append,
+"Create new record and return it. User should fill newly created record\n"
+"with some data.\n");
+PyDoc_STRVAR(MapReduceBufferMethods_doc_append_record,
+"Create new record with given attributes.\n");
+PyDoc_STRVAR(MapReduceBufferMethods_doc_clear,
+"Clear buffer.\n");
+
 static PyMethodDef MapReduceBufferMethods[] = {
   {"append", (PyCFunction)buffer_append, METH_NOARGS,
-   "append record"
+  MapReduceBufferMethods_doc_append,
   },
   {"append_record", (PyCFunction)buffer_append_record, METH_VARARGS,
-   "append record"
+  MapReduceBufferMethods_doc_append_record,
   },
   {"clear", (PyCFunction)buffer_clear, METH_NOARGS,
-   "clear buffer, resetting it header count to 0"
+  MapReduceBufferMethods_doc_clear,
   },
   {NULL}  /* Sentinel */
 };
@@ -485,6 +496,10 @@ static int buffer_init(PyObject *self, PyObject *args, PyObject *kwds)
   return -1;
 }
 
+PyDoc_STRVAR(MapReduceBufferType_doc,
+"Buffer object. Can't be created with public ctor.\n"
+"It will always be created by underlying C-code and passed to appropriate\n"
+"functions when needed.\n");
 
 static PyTypeObject MapReduceBufferType = {
   PyObject_HEAD_INIT(NULL)
@@ -508,7 +523,7 @@ static PyTypeObject MapReduceBufferType = {
   0,				/* tp_setattro    */
   0,				/* tp_as_buffer   */
   Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_ITER,		/* tp_flags       */
-  "Buffer object",	/* tp_doc         */
+  MapReduceBufferType_doc,	/* tp_doc         */
   0,		               /* tp_traverse */
   0,		               /* tp_clear */
   0,		               /* tp_richcompare */
@@ -697,7 +712,7 @@ init_zmapreduce(void)
     return;
 
   m = Py_InitModule3("_zmapreduce", MapReduceModuleMethods,
-                     "Example module that creates an extension type.");
+                     "_zmapreduce module. C libmapreduce wrapper.");
   if (m == NULL)
     return;
 
