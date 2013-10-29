@@ -59,7 +59,7 @@ and passing sorted output buffer to combine function if present. Combine functio
 'reduces' output buffer, decreasing data count.
 
 Last step is transferring data over network to reduce nodes. Reducers perform further
-data reduce.
+data reduce. Reduce nodes combine data on every reception.
 
 _zmapreduce module types
 
