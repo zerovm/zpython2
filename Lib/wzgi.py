@@ -183,7 +183,7 @@ class WSGIServer(object):
             elif not headers_sent:
                 # Before the first output, send the stored headers
                 status, response_headers = headers_sent[:] = headers_set
-                sys.stdout.write('Status: %s\r\n' % status)
+                sys.stdout.write('%s %s\r\n' % (environ['SERVER_PROTOCOL'], status))
                 for header in response_headers:
                     sys.stdout.write('%s: %s\r\n' % header)
                 sys.stdout.write('\r\n')
