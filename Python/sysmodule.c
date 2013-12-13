@@ -1421,6 +1421,8 @@ _PySys_Init(void)
                         PyString_FromString(Py_GetPlatform()));
     SET_SYS_FROM_STRING("executable",
                         PyString_FromString(Py_GetProgramFullPath()));
+    SET_SYS_FROM_STRING("argv0",
+                        PyString_FromString(Py_GetProgramName()));
     SET_SYS_FROM_STRING("prefix",
                         PyString_FromString(Py_GetPrefix()));
     SET_SYS_FROM_STRING("exec_prefix",
