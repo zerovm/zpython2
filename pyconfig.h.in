@@ -122,7 +122,7 @@
 
 /* Define to 1 if you have the `clock' function. */
 /* disabled for zpython */
-/*  #undef HAVE_CLOCK */
+#undef HAVE_CLOCK
 
 /* Define to 1 if you have the `confstr' function. */
 #undef HAVE_CONFSTR
@@ -661,11 +661,11 @@
 
 /* Define if sockaddr has sa_len member */
 /* disabled for zpython */
-/* #undef HAVE_SOCKADDR_SA_LEN */
+#undef HAVE_SOCKADDR_SA_LEN
 
 /* struct sockaddr_storage (sys/socket.h) */
 /* disabled for zpython */
-/* #undef HAVE_SOCKADDR_STORAGE */
+#undef HAVE_SOCKADDR_STORAGE
 
 /* Define if you have the 'socketpair' function. */
 /* disabled for zpython */
@@ -1285,6 +1285,10 @@ YaroslavLitvinov
 #if defined(__USLC__) && defined(__SCO_VERSION__)
 #define STRICT_SYSV_CURSES /* Don't use ncurses extensions */
 #endif
+
+
+/* define platform as zvm */
+#define PLATFORM "linux2-zvm"
 
 #endif /*Py_PYCONFIG_H*/
 
