@@ -9,12 +9,37 @@ No known issues.
 Modules testing is based on regression tests included in python distribution. 
 See available tests in _python-lib-dir/python2.7/test_.
 
+### Production
+
 + time 5/15 failures
 	+ No system `sleep` implementation. `Function not implemented` error.
 	+ Two failing tests (test_gmtime_without_arg, test_localtime_without_arg) due to zerovm/zrt time implementation mechanism.  
 	+ Skipped test (test_clock) due to absense `clock()` function.
 + datetime: 2/240 failures
 	+ No system `sleep` implementation. `Function not implemented` error.
++ cpickle 4/195 failures
+	+ No `statvfs` implementation.
+
+
+### Experimental
+
++ posix: 18/38 failures
+
+	Relies heavily on zrt. Most of features is experimental.
+
+	+ Bunch of `Function not implemented` errors. Have to stub them in glibc to remove from testing or replace with simple implementations.
+	+ `chown` not raising `OSError`. Experimental ZRT feature.
+
+### Unsupported
+
++ subprocess
++ popen, popen2
++ curses
++ signal
++ pipes
++ Tkinter
+
+
 
 ##Failing regression test list
 
@@ -24,10 +49,7 @@ We've run all available tests under ZeroVM. Test list with brief description fol
 # failed or skipped tests for cpython2.7 on zerovm/zrt
 # current progress: 144/392 failed tests
 
-# test_posix # zrt fs feature lacking
-# test_cpickle # 99% tests working, failinf due to zrt fs feature lacking
 # test_mailbox # zrt fs feature lacking (tmp files)
-# test_time # fails due to zerovm platform constraints, some unknown failures
 # test_aepack test_scriptpackages # no moudle named aetools
 # test_telnetlib test_threading_local test_wait4 test_thread test_httpservers 
 	test_queue test_fork1 test_poplib test_winreg test_threadsignals test_docxmlrpc
@@ -52,8 +74,6 @@ We've run all available tests under ZeroVM. Test list with brief description fol
 # test_largefile # function signal not implemented
 # test_random # sleep not supported
 # test_strtod # correctly-rounded string->float conversions not available on this system
-# test_ttk_guionly test_tcl test_ttk_textonly test_tk # no module named _tkinter 
-
 # test_argparse # no tmpfile support
 # test_asyncore # no _realsocket support, no dup support
 # test_cmd_line_script # no pipe support
@@ -70,7 +90,6 @@ We've run all available tests under ZeroVM. Test list with brief description fol
 # test_tarfile # 90% works, fs issues
 # test_py3kwarn # must be run with -3 flag
 # test_zipfile64 # test requires loads of disk-space bytes and a long time to run
-# test_datetime # 99% works, no sleep support
 # test_dummy_thread # no sleep support
 # test_gzip # no fsync, fileno support
 # test_lib2to3 # 99% works, unknown errors
@@ -101,13 +120,8 @@ We've run all available tests under ZeroVM. Test list with brief description fol
 # test_cmd_line # no pipe support, no /dev/null
 # test_dircache # seems tmp dir issue
 # test_hash # no pipe support
-# test_pipes # no popen support, unknown errors
 # test_platform # no symlink support, unknown error
-# test_popen # no popen support
-# test_popen2 # no pipe support
-# test_signal # no signal support
 # test_warnings # no pipe support
-# test_curses # curses resource not enabled  
 # test_glob # no symlink support
 # test_io # memory/MemNode.cc:105: void MemNode::ReallocData(int): Assertion `len > 0' failed.
 # test_mhlib # no utime support, unknown error
@@ -120,8 +134,6 @@ We've run all available tests under ZeroVM. Test list with brief description fol
 # test_pydoc # no pipe support
 # test_traceback # no sleep support
 # test_zipimport_support @ no pipe, remove support
-
 # test_tempfile.py # no pipe, unlink, remove support
 # test_zipfile.py # no unlink support
-# test_subprocess.py # sigsegv
 ```
