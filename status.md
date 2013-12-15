@@ -19,7 +19,12 @@ See available tests in _python-lib-dir/python2.7/test_.
 	+ No system `sleep` implementation. `Function not implemented` error.
 + cpickle 4/195 failures
 	+ No `statvfs` implementation.
-
++ quopri 2/10 failures
+	+ No `popen` implementation.
++ os: 16/64 failures
+	+ No `dup`, `utime`, `tcsetpgrp`, `datasync`, `getattr`, `pipe` implementations.
+	+ No `/dev/null`, `/dev/urandom` devices.
+	
 
 ### Experimental
 
@@ -30,6 +35,17 @@ See available tests in _python-lib-dir/python2.7/test_.
 	+ Bunch of `Function not implemented` errors. Have to stub them in glibc to remove from testing or replace with simple implementations.
 	+ `chown` not raising `OSError`. Experimental ZRT feature.
 
++ dummy_threading: 1/15 failures
+	+ No `sleep` support.
++ mmap: 13/19 failures
+	
+	Very limited functionality. Almost unsupported feature. 
+
+	+ No large file support 
+
+
+
+
 ### Unsupported
 
 + subprocess
@@ -38,8 +54,23 @@ See available tests in _python-lib-dir/python2.7/test_.
 + signal
 + pipes
 + Tkinter
-
-
++ mailbox
+	+ Tests fail due to zrt issue #67. 
+	+ No `gethostname` implementation.
++ aetools/aepack/aetypes
++ telnetlib
++ threading
++ httpservers
++ queue
++ poplib
++ winreg
++ docxmlrpc
++ imaplib
++ ftplib
++ urllib2/urllib
++ httplib
++ socket
++ smtplib
 
 ##Failing regression test list
 
@@ -49,28 +80,17 @@ We've run all available tests under ZeroVM. Test list with brief description fol
 # failed or skipped tests for cpython2.7 on zerovm/zrt
 # current progress: 144/392 failed tests
 
-# test_mailbox # zrt fs feature lacking (tmp files)
-# test_aepack test_scriptpackages # no moudle named aetools
-# test_telnetlib test_threading_local test_wait4 test_thread test_httpservers 
-	test_queue test_fork1 test_poplib test_winreg test_threadsignals test_docxmlrpc
-	test_wait3 test_imaplib test_threaded_import test_threadedtempfile 
-	test_threading test_ftplib test_urllib2_localnet # no module named thread
+# test_wait4 test_fork1 test_wait3 # no module named thread
 # test_cd test_cl test_readline test_al test_bsddb185 test_ssl test_ctypes 
 	test_gl test_sunaudiodev test_winsound test_crypt test_multiprocessing test_mmap
 	test_nis test_future_builtins test_bsddb test_bsddb3 test_macos test_applesingle 
 	test_macostools test_hotshot test_dbm test_imgfile test_msilib test_dl 
 	test_ossaudiodev test_linuxaudiodev # no modules
-# test_quopri # no pipe support
-# test_smtpnet # no SSL_SMTP attribute
-# test_urllib2net test_urllibnet #  no sleep support, non-recoverable failure in name resolution.
-# test_timeout # no _realsocket support
-# test_file2k # no pipe support
+
 # test_os # no module name mmap
-# test_urllib2 # 90% working, non-recoverable failure in name resolution
 # test_codecmaps_hk test_codecmaps_tw test_codecmaps_jp test_codecmaps_cn test_codecmaps_kr # couldn't retreive ...
 # test_gdbm # no module named gdb
 # test_commands # no popen support
-# test_httplib # function _realsocket not implemented
 # test_largefile # function signal not implemented
 # test_random # sleep not supported
 # test_strtod # correctly-rounded string->float conversions not available on this system
@@ -90,7 +110,6 @@ We've run all available tests under ZeroVM. Test list with brief description fol
 # test_tarfile # 90% works, fs issues
 # test_py3kwarn # must be run with -3 flag
 # test_zipfile64 # test requires loads of disk-space bytes and a long time to run
-# test_dummy_thread # no sleep support
 # test_gzip # no fsync, fileno support
 # test_lib2to3 # 99% works, unknown errors
 # test_macpath # no chdir support
