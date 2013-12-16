@@ -112,14 +112,11 @@ PYTHONPATH=$(COREPYTHONPATH)
 # This only contains the minimal set of modules required to run the 
 # setup.py script in the root of the Python source tree.
 
-#_ctypes _ctypes/_ctypes.c _ctypes/callbacks.c _ctypes/callproc.c _ctypes/stgdict.c _ctypes/cfield.c -lffi -lzdl
 _zmapreduce zmapreducemodule.c -lmapreduce -lnetworking # mapreduce module based on libmapreduce
 _lsprof _lsprof.c rotatingtree.c
-mmap mmapmodule.c
 future_builtins future_builtins.c
 _heapq _heapqmodule.c
 _hotshot _hotshot.c
-syslog syslogmodule.c
 
 SQLITE_DEFS=-DMODULE_NAME='"sqlite3"' -DSQLITE_OMIT_LOAD_EXTENSION=1 
 _sqlite3 _sqlite/cache.c _sqlite/connection.c _sqlite/cursor.c _sqlite/microprotocols.c _sqlite/module.c _sqlite/prepare_protocol.c _sqlite/row.c _sqlite/statement.c _sqlite/util.c $(SQLITE_DEFS) -lsqlite3 -I${ZVM_PREFIX}/x86_64-nacl/include/sqlite3
@@ -197,7 +194,7 @@ _struct _struct.c	# binary structure packing/unpacking
 
 time timemodule.c # -lm # time operations and variables
 _weakref _weakref.c	# basic weak reference support
-#_testcapi _testcapimodule.c    # Python C API test module
+_testcapi _testcapimodule.c    # Python C API test module
 ###
 _random _randommodule.c	# Random number generator
 _collections _collectionsmodule.c # Container types
@@ -211,10 +208,6 @@ _bisect _bisectmodule.c	# Bisection algorithms
 
 unicodedata unicodedata.c    # static Unicode character database
 
-# access to ISO C locale support
-_locale _localemodule.c  # -lintl
-
-
 # Modules with some UNIX dependencies -- on by default:
 # (If you have a really backward UNIX, select and socket may not be
 # supported...)
@@ -225,7 +218,7 @@ grp grpmodule.c		# grp(3)
 select selectmodule.c	# select(2); not on ancient System V
 
 # Memory-mapped files (also works on Win32).
-#mmap mmapmodule.c
+mmap mmapmodule.c
 
 # CSV file helper
 _csv _csv.c
@@ -331,7 +324,7 @@ _sha512 sha512module.c
 
 # George Neville-Neil's timing module:
 
-#timing timingmodule.c
+timing timingmodule.c
 
 
 # The _tkinter module.
@@ -378,7 +371,7 @@ _sha512 sha512module.c
 #	-lX11
 
 # Lance Ellinghaus's syslog module
-#syslog syslogmodule.c		# syslog daemon interface
+syslog syslogmodule.c		# syslog daemon interface
 
 
 # Curses support, requring the System V version of curses, often
@@ -397,7 +390,7 @@ _sha512 sha512module.c
 # it is a highly experimental and dangerous device for calling
 # *arbitrary* C functions in *arbitrary* shared libraries:
 
-#dl dlmodule.c
+dl dlmodule.c
 
 
 # Modules that provide persistent dictionary-like semantics.  You will
@@ -484,7 +477,7 @@ cPickle cPickle.c
 # Andrew Kuchling's zlib module.
 # This require zlib 1.1.3 (or later).
 # See http://www.gzip.org/zlib/
-#zlib zlibmodule.c -I$(prefix)/include -L$(exec_prefix)/lib -lz
+zlib zlibmodule.c -I$(prefix)/include -L$(exec_prefix)/lib -lz
 
 # Interface to the Expat XML parser
 #
@@ -518,10 +511,5 @@ _codecs_tw cjkcodecs/_codecs_tw.c
 # Another example -- the 'xxsubtype' module shows C-level subtyping in action
 xxsubtype xxsubtype.c
 
-bz2 bz2module.c -I/home/ramp/soft/3rdparty/include -L/home/ramp/soft/3rdparty/lib -lbz2
-zlib zlibmodule.c -I/home/ramp/soft/3rdparty/include -L/home/ramp/soft/3rdparty/lib -lz
-_io -I$(srcdir)/Modules/_io _io/_iomodule.c _io/iobase.c _io/fileio.c _io/bytesio.c _io/bufferedio.c _io/textio.c _io/stringio.c
+bz2 bz2module.c -lbz2
 _json _json.c
-_testcapi _testcapimodule.c
-cStringIO cStringIO.c
-cPickle cPickle.c
