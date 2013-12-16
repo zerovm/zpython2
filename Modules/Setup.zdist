@@ -116,6 +116,10 @@ PYTHONPATH=$(COREPYTHONPATH)
 _zmapreduce zmapreducemodule.c -lmapreduce -lnetworking # mapreduce module based on libmapreduce
 _lsprof _lsprof.c rotatingtree.c
 mmap mmapmodule.c
+future_builtins future_builtins.c
+_heapq _heapqmodule.c
+_hotshot _hotshot.c
+syslog syslogmodule.c
 
 SQLITE_DEFS=-DMODULE_NAME='"sqlite3"' -DSQLITE_OMIT_LOAD_EXTENSION=1 
 _sqlite3 _sqlite/cache.c _sqlite/connection.c _sqlite/cursor.c _sqlite/microprotocols.c _sqlite/module.c _sqlite/prepare_protocol.c _sqlite/row.c _sqlite/statement.c _sqlite/util.c $(SQLITE_DEFS) -lsqlite3 -I${ZVM_PREFIX}/x86_64-nacl/include/sqlite3
@@ -241,7 +245,7 @@ _socket socketmodule.c
 #
 # First, look at Setup.config; configure may have set this for you.
 
-#crypt cryptmodule.c # -lcrypt	# crypt(3); needs -lcrypt on some systems
+crypt cryptmodule.c -lcrypt	# crypt(3); needs -lcrypt on some systems
 
 
 # Some more UNIX dependent modules -- off by default, since these
@@ -519,3 +523,5 @@ zlib zlibmodule.c -I/home/ramp/soft/3rdparty/include -L/home/ramp/soft/3rdparty/
 _io -I$(srcdir)/Modules/_io _io/_iomodule.c _io/iobase.c _io/fileio.c _io/bytesio.c _io/bufferedio.c _io/textio.c _io/stringio.c
 _json _json.c
 _testcapi _testcapimodule.c
+cStringIO cStringIO.c
+cPickle cPickle.c

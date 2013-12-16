@@ -21,10 +21,6 @@ See available tests in _python-lib-dir/python2.7/test_.
 	+ No `statvfs` implementation.
 + quopri 2/10 failures
 	+ No `popen` implementation.
-+ os: 16/64 failures
-	+ No `dup`, `utime`, `tcsetpgrp`, `datasync`, `getattr`, `pipe` implementations.
-	+ No `/dev/null`, `/dev/urandom` devices.
-	
 
 ### Experimental
 
@@ -35,6 +31,10 @@ See available tests in _python-lib-dir/python2.7/test_.
 	+ Bunch of `Function not implemented` errors. Have to stub them in glibc to remove from testing or replace with simple implementations.
 	+ `chown` not raising `OSError`. Experimental ZRT feature.
 
++ os: 16/64 failures
+	+ No `dup`, `utime`, `tcsetpgrp`, `datasync`, `pipe`, `symlink` implementations.
+	+ No `/dev/null`, `/dev/urandom` devices.
+
 + dummy_threading: 1/15 failures
 	+ No `sleep` support.
 + mmap: 13/19 failures
@@ -42,9 +42,6 @@ See available tests in _python-lib-dir/python2.7/test_.
 	Very limited functionality. Almost unsupported feature. 
 
 	+ No large file support 
-
-
-
 
 ### Unsupported
 
@@ -71,6 +68,8 @@ See available tests in _python-lib-dir/python2.7/test_.
 + httplib
 + socket
 + smtplib
++ ctypes
+	+	Not yet. `libffi` needs to pe ported first.
 
 ##Failing regression test list
 
@@ -81,15 +80,12 @@ We've run all available tests under ZeroVM. Test list with brief description fol
 # current progress: 144/392 failed tests
 
 # test_wait4 test_fork1 test_wait3 # no module named thread
-# test_cd test_cl test_readline test_al test_bsddb185 test_ssl test_ctypes 
+# test_cd test_cl test_readline test_al test_bsddb185 test_ssl  
 	test_gl test_sunaudiodev test_winsound test_crypt test_multiprocessing test_mmap
 	test_nis test_future_builtins test_bsddb test_bsddb3 test_macos test_applesingle 
 	test_macostools test_hotshot test_dbm test_imgfile test_msilib test_dl 
-	test_ossaudiodev test_linuxaudiodev # no modules
-
-# test_os # no module name mmap
+	test_ossaudiodev test_linuxaudiodev test_gdbm # no modules
 # test_codecmaps_hk test_codecmaps_tw test_codecmaps_jp test_codecmaps_cn test_codecmaps_kr # couldn't retreive ...
-# test_gdbm # no module named gdb
 # test_commands # no popen support
 # test_largefile # function signal not implemented
 # test_random # sleep not supported
