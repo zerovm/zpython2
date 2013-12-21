@@ -21,6 +21,13 @@ See available tests in _python-lib-dir/python2.7/test_.
 	+ No `statvfs` implementation.
 + quopri 2/10 failures
 	+ No `popen` implementation.
++ random 2/60 failures
+	+ No `sleep` implementation.
++ argparse 72/1596 failures
+	+ No `chdir` implementation.
++ unicodedata 1/22 failures
+	+ No `pipe` implementation.
+
 
 ### Experimental
 
@@ -30,11 +37,9 @@ See available tests in _python-lib-dir/python2.7/test_.
 
 	+ Bunch of `Function not implemented` errors. Have to stub them in glibc to remove from testing or replace with simple implementations.
 	+ `chown` not raising `OSError`. Experimental ZRT feature.
-
 + os: 16/64 failures
 	+ No `dup`, `utime`, `tcsetpgrp`, `datasync`, `pipe`, `symlink` implementations.
 	+ No `/dev/null`, `/dev/urandom` devices.
-
 + dummy_threading: 1/15 failures
 	+ No `sleep` support.
 + mmap: 13/19 failures
@@ -42,6 +47,9 @@ See available tests in _python-lib-dir/python2.7/test_.
 	Very limited functionality. Almost unsupported feature. 
 
 	+ No large file support 
+
++ hotshot
+	+ No `getrusage` implementation.
 
 ### Unsupported
 
@@ -70,6 +78,35 @@ See available tests in _python-lib-dir/python2.7/test_.
 + smtplib
 + ctypes
 	+	Not yet. `libffi` needs to pe ported first.
++ cd
++ readline
++ cl
++ sv
++ al
++ bsddb
++ gl
++ ssl
+	+ No `sockets`.
++ sunaudiodev
++ winsound
++ multiprocessing
++ nis
++ macos
++ dbm/gdbm/anydbm
++ imgfile
++ msilib
++ ossaudiodev
++ linuxaudiodev
++ dl
+	+ No dynamic linking support in ZeroVM.
++ commands
++ asyncore
++ zipimport
+	+ ZIP does not support timestamps before 1980
++ pdb 
++ resource
+
+
 
 ##Failing regression test list
 
@@ -80,31 +117,24 @@ We've run all available tests under ZeroVM. Test list with brief description fol
 # current progress: 144/392 failed tests
 
 # test_wait4 test_fork1 test_wait3 # no module named thread
-# test_cd test_cl test_readline test_al test_bsddb185 test_ssl  
-	test_gl test_sunaudiodev test_winsound test_crypt test_multiprocessing test_mmap
-	test_nis test_future_builtins test_bsddb test_bsddb3 test_macos test_applesingle 
-	test_macostools test_hotshot test_dbm test_imgfile test_msilib test_dl 
-	test_ossaudiodev test_linuxaudiodev test_gdbm # no modules
 # test_codecmaps_hk test_codecmaps_tw test_codecmaps_jp test_codecmaps_cn test_codecmaps_kr # couldn't retreive ...
-# test_commands # no popen support
+
+io module testing:
 # test_largefile # function signal not implemented
-# test_random # sleep not supported
-# test_strtod # correctly-rounded string->float conversions not available on this system
-# test_argparse # no tmpfile support
-# test_asyncore # no _realsocket support, no dup support
+# test_fileio # no pipe support, seek issues
+# test_file # 99% working, AssertionError: File pos after ftruncate wrong 11 
+# test_io # memory/MemNode.cc:105: void MemNode::ReallocData(int): Assertion `len > 0' failed.
+
+
 # test_cmd_line_script # no pipe support
 # test_compileall # unknown error, research needed
 # test_poll # no pipe support
-# test_unicodedata # no pipe support
-# test_xpickle # no statvfs support
-# test_zipimport #  ZIP does not support timestamps before 1980
-# test_file # 99% working, AssertionError: File pos after ftruncate wrong 11 
-# test_fileio # no pipe support, zrt fs feature lacking, unknown errors
+
+
+
 # test_grp # unknown error
-# test_pdb # no pipe support
-# test_resource # no getrlimit support
 # test_tarfile # 90% works, fs issues
-# test_py3kwarn # must be run with -3 flag
+# test_py3kwarhn # must be run with -3 flag
 # test_zipfile64 # test requires loads of disk-space bytes and a long time to run
 # test_gzip # no fsync, fileno support
 # test_lib2to3 # 99% works, unknown errors
@@ -138,7 +168,7 @@ We've run all available tests under ZeroVM. Test list with brief description fol
 # test_platform # no symlink support, unknown error
 # test_warnings # no pipe support
 # test_glob # no symlink support
-# test_io # memory/MemNode.cc:105: void MemNode::ReallocData(int): Assertion `len > 0' failed.
+
 # test_mhlib # no utime support, unknown error
 # test_mimetools # no support gethostbyname gethostname
 # test_pickle test_pickletools # almost working, no statvfs support
