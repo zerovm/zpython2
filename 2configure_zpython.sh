@@ -10,11 +10,10 @@ cp Modules/Setup.zdist Modules/Setup
 
 #configure cpython to be built statically, also overrided LINKFORSHARED variable,
 #although rest variables has been set to link it statically by nacl-gcc
-export THIRDPARTYLIBS="-lbz2"
 export PYTHONPATH="${ZPYTHON_ROOT}/Modules:${ZPYTHON_ROOT}/Lib:${ZPYTHON_ROOT}"
 export LINKFORSHARED=\
 "-s -static -T ${ZVM_PREFIX}/x86_64-nacl/lib64/ldscripts/elf64_nacl.x.static \
--melf64_nacl -m64 -L${ZVM_PREFIX}/x86_64-nacl/lib -lzrt -lfs -lstdc++ ${THIRDPARTYLIBS}"
+-melf64_nacl -m64 -L${ZVM_PREFIX}/x86_64-nacl/lib -lzrt -lfs -lstdc++"
 export CC="x86_64-nacl-gcc"
 export CXX="x86_64-nacl-g++"
 export AR="x86_64-nacl-ar"

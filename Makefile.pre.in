@@ -367,7 +367,7 @@ LIBRARY_OBJS=	\
 
 # Default target
 all:		build_all
-build_all:	$(BUILDPYTHON) oldsharedmods sharedmods gdbhooks
+build_all:	$(BUILDPYTHON) gdbhooks
 
 # cross-compile
 host: python Parser/pgen
@@ -771,7 +771,7 @@ install:	@FRAMEWORKINSTALLFIRST@ altinstall bininstall maninstall @FRAMEWORKINST
 
 # Install almost everything without disturbing previous versions
 altinstall:	@FRAMEWORKALTINSTALLFIRST@ altbininstall libinstall inclinstall libainstall \
-                sharedinstall oldsharedinstall @FRAMEWORKALTINSTALLLAST@
+                @FRAMEWORKALTINSTALLLAST@
 
 # Install shared libraries enabled by Setup
 DESTDIRS=	$(exec_prefix) $(LIBDIR) $(BINLIBDEST) $(DESTSHARED)
