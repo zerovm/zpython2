@@ -13,7 +13,7 @@ See available tests in _python-lib-dir/python2.7/test_.
 
 + time 5/15 failures
 	+ No system `sleep` implementation. `Function not implemented` error.
-	+ Two failing tests (test_gmtime_without_arg, test_localtime_without_arg) due to zerovm/zrt time implementation mechanism.  
+	+ Two failing tests (test\_gmtime\_without\_arg, test\_localtime\_without\_arg) due to zerovm/zrt time implementation mechanism.  
 	+ Skipped test (test_clock) due to absense `clock()` function.
 + datetime: 2/240 failures
 	+ No system `sleep` implementation. `Function not implemented` error.
@@ -27,6 +27,15 @@ See available tests in _python-lib-dir/python2.7/test_.
 	+ No `chdir` implementation.
 + unicodedata 1/22 failures
 	+ No `pipe` implementation.
++ 2to3 1/577 failures
+	+	No `os.system` routine.
++ runpy 4/17 failures
+	+ `Unlink/rmdir` bug.
++ cookielib 1/55 failures
+	+ One failing test due to time implementation mechanism.
++ py_compile 1/3 failures
+	+ No `chdir` implementation.
+
 
 
 ### Experimental
@@ -40,6 +49,8 @@ See available tests in _python-lib-dir/python2.7/test_.
 + os: 16/64 failures
 	+ No `dup`, `utime`, `tcsetpgrp`, `datasync`, `pipe`, `symlink` implementations.
 	+ No `/dev/null`, `/dev/urandom` devices.
++ os.path 9/33 failures
+	+ No `symlink`, `chdir` implementation.
 + dummy_threading: 1/15 failures
 	+ No `sleep` support.
 + mmap: 13/19 failures
@@ -48,8 +59,20 @@ See available tests in _python-lib-dir/python2.7/test_.
 
 	+ No large file support 
 
-+ hotshot
++ hotshot 1/6 failures
 	+ No `getrusage` implementation.
++ tarfile 24/241 failures
+	+ No `symlink`, `chdir` implementation.
++ gzip 10/18 failures
+	+ No `fsync` implementation.
++ uuid 2/14 failures
+	+ No `pipe`, `gethostbyname` implementation.
++ import 6/23 failures
+	+ No `pipe`, `utime` implementation.
+	+ Won't import *.pyc files without atime/ctime/utime support.
+
+
+
 
 ### Unsupported
 
@@ -104,8 +127,11 @@ See available tests in _python-lib-dir/python2.7/test_.
 + zipimport
 	+ ZIP does not support timestamps before 1980
 + pdb 
++ macpath
 + resource
-
++ pty
++ gdb
++ ntpath
 
 
 ##Failing regression test list
@@ -129,33 +155,13 @@ io module testing:
 # test_cmd_line_script # no pipe support
 # test_compileall # unknown error, research needed
 # test_poll # no pipe support
-
-
-
-# test_grp # unknown error
-# test_tarfile # 90% works, fs issues
-# test_py3kwarhn # must be run with -3 flag
-# test_zipfile64 # test requires loads of disk-space bytes and a long time to run
-# test_gzip # no fsync, fileno support
-# test_lib2to3 # 99% works, unknown errors
-# test_macpath # no chdir support
-# test_pty # no pipe, signal support
 # test_select # no select, popen support
 # test_epoll # test works only on linux 2.6
-# test_gdb # no gdb on path
-# test_ntpath # no chdir support
-# test_runpy # fs issues
-# test_unittest # no signal support, unknown errors
-# test_uuid # no gethostbyname gethostname support
-# test_ascii_formatd # no module named _ctypes
-# test_startfile # module os has no attribute statfile
-# test_unicode_file # No Unicode filesystem semantics on this platform
-# test_cgi.py # fs issues with tmpfiles, unlink
-# test_cookielib # 1 tests failied: datetime issue
-# test_import # no pipe, utime support, unknown errors
-# test_openpty # no ideas
-# test_posixpath # no chdir, symlink support
-# test_py_compile # no chdir support
+
+# test_grp # unknown error
+# test_py3kwarhn # must be run with -3 flag
+# test_zipfile64 # test requires loads of disk-space bytes and a long time to run
+
 # test_shutil # no PATH environment var
 # test_smtplib # most test skipped due to no threading support, no gethostname support
 # test_socket # no _realsocket getaddrinfo support
