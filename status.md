@@ -35,8 +35,15 @@ See available tests in _python-lib-dir/python2.7/test_.
 	+ One failing test due to time implementation mechanism.
 + py_compile 1/3 failures
 	+ No `chdir` implementation.
-
-
++ sys 3/25 failures
+	+ No `pipe` impplementation.
++ platform 2/20
+	+	No `symlink` implementation.
+	+ No executable availiable under zerovm (only through /dev/self)
++ pickle 2/104 failures
+	+ No `statvfs` implementation
++ pickletools 1/53 failures
+	+ No `statvfs` implementation
 
 ### Experimental
 
@@ -70,6 +77,24 @@ See available tests in _python-lib-dir/python2.7/test_.
 + import 6/23 failures
 	+ No `pipe`, `utime` implementation.
 	+ Won't import *.pyc files without atime/ctime/utime support.
++ shutil 17/33 failures
+	+ No `mkfifo`, `chdir`, `symlink` implementations.
++ trace 2/14 failures
+	+ `fcntl` zrt issue
++ hash 12/24 failures
+	+ No `pipe` implementation.
++ warning 10/71 failures
+	+ No `pipe` implementation.
++ sysconfig 1/10 failures
+	+ No `symlink` implementation.
++ pkgutil 1/5 failures
+	+ ZIP does not support timestamps before 1980
++ pydoc 5/15 failures
+	+ No `pipe` support.
++ traceback 1/11 failures
+	+ No `sleep` implementation.
+
+
 
 
 
@@ -132,6 +157,17 @@ See available tests in _python-lib-dir/python2.7/test_.
 + pty
 + gdb
 + ntpath
++ termios
++ dircache
+	+ Deprecated since 2.6
++ glob
+	+ No `symlink` implementation.
++ mhlib
++ mimetools
++ pwd
++ zip
++ zipfile
+
 
 
 ##Failing regression test list
@@ -152,7 +188,7 @@ io module testing:
 # test_io # memory/MemNode.cc:105: void MemNode::ReallocData(int): Assertion `len > 0' failed.
 
 
-# test_cmd_line_script # no pipe support
+# test_cmd_line # no pipe support, no /dev/null
 # test_compileall # unknown error, research needed
 # test_poll # no pipe support
 # test_select # no select, popen support
@@ -162,29 +198,5 @@ io module testing:
 # test_py3kwarhn # must be run with -3 flag
 # test_zipfile64 # test requires loads of disk-space bytes and a long time to run
 
-# test_shutil # no PATH environment var
-# test_smtplib # most test skipped due to no threading support, no gethostname support
-# test_socket # no _realsocket getaddrinfo support
-# test_sys # no pipe support, unknown error
-# test_trace # rmdir error, unknown error
-# test_ioctl # no /dev/tty 
-# test_cmd_line # no pipe support, no /dev/null
-# test_dircache # seems tmp dir issue
-# test_hash # no pipe support
-# test_platform # no symlink support, unknown error
-# test_warnings # no pipe support
-# test_glob # no symlink support
-
-# test_mhlib # no utime support, unknown error
-# test_mimetools # no support gethostbyname gethostname
-# test_pickle test_pickletools # almost working, no statvfs support
-# test_pwd # unknown error
-# test_sysconfig # no symlink support
-# test_pep277 # only NT+ and systems with Unicode-friendly filesystem encoding 
-# test_pkgutil # ZIP does not support timestamps before 1980, no remove support
-# test_pydoc # no pipe support
-# test_traceback # no sleep support
-# test_zipimport_support @ no pipe, remove support
 # test_tempfile.py # no pipe, unlink, remove support
-# test_zipfile.py # no unlink support
 ```
