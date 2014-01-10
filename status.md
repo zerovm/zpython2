@@ -94,11 +94,6 @@ See available tests in _python-lib-dir/python2.7/test_.
 + traceback 1/11 failures
 	+ No `sleep` implementation.
 
-
-
-
-
-
 ### Unsupported
 
 + subprocess
@@ -167,36 +162,22 @@ See available tests in _python-lib-dir/python2.7/test_.
 + pwd
 + zip
 + zipfile
-
-
++ select
 
 ##Failing regression test list
 
-We've run all available tests under ZeroVM. Test list with brief description follows.
+We've run all tests available under ZeroVM. Test list with brief description follows.
 
 ```
 # failed or skipped tests for cpython2.7 on zerovm/zrt
 # current progress: 144/392 failed tests
 
-# test_wait4 test_fork1 test_wait3 # no module named thread
-# test_codecmaps_hk test_codecmaps_tw test_codecmaps_jp test_codecmaps_cn test_codecmaps_kr # couldn't retreive ...
-
 io module testing:
 # test_largefile # function signal not implemented
 # test_fileio # no pipe support, seek issues
 # test_file # 99% working, AssertionError: File pos after ftruncate wrong 11 
-# test_io # memory/MemNode.cc:105: void MemNode::ReallocData(int): Assertion `len > 0' failed.
-
-
-# test_cmd_line # no pipe support, no /dev/null
-# test_compileall # unknown error, research needed
-# test_poll # no pipe support
-# test_select # no select, popen support
-# test_epoll # test works only on linux 2.6
-
+# test_io # seek/ftruncate issues, no signal, pipe support
 # test_grp # unknown error
-# test_py3kwarhn # must be run with -3 flag
 # test_zipfile64 # test requires loads of disk-space bytes and a long time to run
-
 # test_tempfile.py # no pipe, unlink, remove support
 ```
