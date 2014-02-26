@@ -370,8 +370,7 @@ all:		build_all
 build_all:	$(BUILDPYTHON) gdbhooks
 
 # cross-compile
-host: python Parser/pgen
-	mv python hostpython
+host: Parser/pgen
 	mv Parser/pgen Parser/hostpgen
 	make distclean
 
