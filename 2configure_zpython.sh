@@ -2,11 +2,8 @@
 
 SCRIPT=$(readlink -f "$0")
 SCRIPT_PATH=`dirname "$SCRIPT"`
+
 export ZPYTHON_ROOT=${SCRIPT_PATH}
-
-cp pyconfig.h.zin pyconfig.h.in
-cp Modules/Setup.zdist Modules/Setup
-
 export PYTHONPATH=${ZPYTHON_ROOT}/Lib:${ZPYTHON_ROOT}
 export HOSTPYTHON=./hostpython
 export HOSTPGEN=./Parser/hostpgen
