@@ -14,5 +14,8 @@ export BUILDARCH=x86_64-linux-gnu
 
 make python install
 
+echo "Creating python.tar.."
+tar cf python.tar -C install/ include/ lib/ --exclude=libpython2.7.a
+echo "Done!"
 
 
