@@ -5,8 +5,7 @@ SCRIPT_PATH=`dirname "$SCRIPT"`
 
 export ZPYTHON_ROOT=${SCRIPT_PATH}
 export PYTHONPATH=${ZPYTHON_ROOT}/Lib:${ZPYTHON_ROOT}
-export HOSTPYTHON=./hostpython
-export HOSTPGEN=./Parser/hostpgen
+export PYTHONHOME=${ZPYTHON_ROOT}/install
 export LDFLAGS="-m64 -Wl,--no-export-dynamic -static-libgcc"
 
 ./configure \
@@ -16,3 +15,14 @@ export LDFLAGS="-m64 -Wl,--no-export-dynamic -static-libgcc"
 --enable-shared=no \
 --disable-shared \
 --with-pydebug
+
+export HOSTPYTHON=`which python`
+export HOSTPGEN=./Parser/hostpgen
+
+make python install
+
+echo "Creating python.tar.."
+tar cf python.tar -C install/ include/ lib/ --exclude=libpython2.7.a
+echo "Done!"
+
+
