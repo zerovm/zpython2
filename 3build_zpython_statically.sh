@@ -3,8 +3,9 @@
 SCRIPT=$(readlink -f "$0")
 SCRIPT_PATH=`dirname "$SCRIPT"`
 
-export PYTHONHOME=${ZPYTHON_ROOT}:${ZPYTHON_ROOT}/Lib
-export HOSTPYTHON=./hostpython
+export ZPYTHON_ROOT=${SCRIPT_PATH}
+export PYTHONHOME=${ZPYTHON_ROOT}/install
+export HOSTPYTHON=`which python`
 export HOSTPGEN=./Parser/hostpgen
 export PATH=${PATH}:${PLAT}"/bin"
 export CROSS_COMPILE="x86_64-nacl-"
