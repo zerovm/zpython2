@@ -9,17 +9,6 @@
 #include <errno.h>
 #include <assert.h>
 
-#define DEFAULT_WORKING_DIRPATH "/"
-
-int chdir(const char *path) {
-	// allow chdir only to '/' according to getcwd.c
-	if (strcmp(path, DEFAULT_WORKING_DIRPATH)) {
-		errno = ENOSYS;
-		return -1;
-	}  	
-  	return 0; 	
-}
-
 pid_t waitpid(pid_t pid, int *status, int options) {
   	errno = ENOSYS;
   	return -1;
