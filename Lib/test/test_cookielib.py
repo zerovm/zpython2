@@ -5,8 +5,9 @@ import cookielib
 import os
 import re
 import time
+import sys
 
-from unittest import TestCase
+from unittest import TestCase, skipIf
 
 from test import test_support
 
@@ -29,6 +30,8 @@ class DateTimeTests(TestCase):
             self.assertTrue(re.search(r"^\d{4}-\d\d-\d\d \d\d:\d\d:\d\dZ$", text),
                          "bad time2isoz format: %s %s" % (az, bz))
 
+    @skipIf(sys.platform == 'linux2-zvm',
+            'Not supported under ZeroVM')
     def test_http2time(self):
         from cookielib import http2time
 

@@ -113,6 +113,8 @@ class SysModuleTest(unittest.TestCase):
         # Check that an exception can be cleared outside of an except block
         clear_check(exc)
 
+    @unittest.skipIf(sys.platform == 'linux2-zvm',
+                     'Not supported under ZeroVM')
     def test_exit(self):
         self.assertRaises(TypeError, sys.exit, 42, 42)
 
@@ -447,6 +449,8 @@ class SysModuleTest(unittest.TestCase):
     def test_clear_type_cache(self):
         sys._clear_type_cache()
 
+    @unittest.skipIf(sys.platform == 'linux2-zvm',
+                     'Not supported under ZeroVM')
     def test_ioencoding(self):
         import subprocess
         env = dict(os.environ)
@@ -470,6 +474,8 @@ class SysModuleTest(unittest.TestCase):
         self.assertEqual(sys.call_tracing(str, (2,)), "2")
         self.assertRaises(TypeError, sys.call_tracing, str, 2)
 
+    @unittest.skipIf(sys.platform == 'linux2-zvm',
+                     'Not supported under ZeroVM')
     def test_executable(self):
         # sys.executable should be absolute
         self.assertEqual(os.path.abspath(sys.executable), sys.executable)

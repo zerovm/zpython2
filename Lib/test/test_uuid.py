@@ -1,6 +1,7 @@
-from unittest import TestCase
+from unittest import TestCase, skipIf
 from test import test_support
 import uuid
+import sys
 
 def importable(name):
     try:
@@ -299,6 +300,8 @@ class TestUUID(TestCase):
         else:
             TestUUID.last_node = node
 
+    @skipIf(sys.platform == 'linux2-zvm',
+            'Not supported under ZeroVM')
     def test_ifconfig_getnode(self):
         import sys
         import os
@@ -446,6 +449,8 @@ class TestUUID(TestCase):
             equal(u, uuid.UUID(v))
             equal(str(u), v)
 
+    @skipIf(sys.platform == 'linux2-zvm',
+            'Not supported under ZeroVM')
     def testIssue8621(self):
         import os
         import sys

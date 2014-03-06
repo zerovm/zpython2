@@ -66,6 +66,8 @@ class TracebackCases(unittest.TestCase):
         self.assertIn("^", err[2])
         self.assertTrue(err[1].find("2") == err[2].find("^"))
 
+    @unittest.skipIf(sys.platform == 'linux2-zvm',
+                     'Not supported under ZeroVM')
     def test_bug737473(self):
         import os, tempfile, time
 

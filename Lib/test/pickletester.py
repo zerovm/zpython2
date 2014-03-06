@@ -1,3 +1,4 @@
+import sys
 import unittest
 import pickle
 import cPickle
@@ -632,6 +633,8 @@ class AbstractPickleTests(unittest.TestCase):
             b = self.loads(s)
             self.assertEqual(a, b)
 
+    @unittest.skipIf(sys.platform == 'linux2-zvm',
+                     'Not supported under ZeroVM')
     def test_structseq(self):
         import time
         import os

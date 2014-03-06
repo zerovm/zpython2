@@ -5,6 +5,7 @@
 import unittest
 from test import test_support
 import os
+import sys
 import io
 import struct
 gzip = test_support.import_module('gzip')
@@ -39,7 +40,7 @@ class TestGzip(unittest.TestCase):
             # Try flush and fileno.
             f.flush()
             f.fileno()
-            if hasattr(os, 'fsync'):
+            if hasattr(os, 'fsync') and sys.platform != 'linux2-zvm':
                 os.fsync(f.fileno())
             f.close()
 
