@@ -3,13 +3,34 @@
 import os
 import sys
 import subprocess
+import argparse
 
-FILE = 'tests.txt'
+parser = argparse.ArgumentParser()
+parser.add_argument('-f', '--file', help='file containing tests list')
+args = parser.parse_args()
+
+
+FILE = args.file
 devnull = open(os.devnull, "w")
 
+# predefined tests
+tests = [
+    'test_grammar',
+    'test_opcodes',
+    'test_dict',
+    'test_builtin',
+    'test_exceptions',
+    'test_types',
+    'test_unittest',
+    'test_doctest',
+    'test_doctest2',
+]
+
+
 # tests from external file
-with open(FILE, 'r') as rfile:
-    tests = rfile.read().splitlines()
+if FILE:
+    with open(FILE, 'r') as rfile:
+        tests = rfile.read().splitlines()
 
 for test in tests:
     print("%s..." % test.strip()),
