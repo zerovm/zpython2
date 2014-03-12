@@ -24,6 +24,8 @@ class TimeTestCase(unittest.TestCase):
         self.assertTrue(long(time.mktime(time.localtime(self.t)))
                      == long(self.t))
 
+    @unittest.skipIf(sys.platform == 'linux2-zvm',
+                     'Not supported under ZeroVM')
     def test_sleep(self):
         time.sleep(1.2)
 
@@ -222,6 +224,7 @@ class TimeTestCase(unittest.TestCase):
         time.ctime()
         time.ctime(None)
 
+    @unittest.expectedFailure
     def test_gmtime_without_arg(self):
         gt0 = time.gmtime()
         gt1 = time.gmtime(None)
@@ -229,6 +232,7 @@ class TimeTestCase(unittest.TestCase):
         t1 = time.mktime(gt1)
         self.assertTrue(0 <= (t1-t0) < 0.2)
 
+    @unittest.expectedFailure
     def test_localtime_without_arg(self):
         lt0 = time.localtime()
         lt1 = time.localtime(None)

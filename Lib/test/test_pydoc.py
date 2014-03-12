@@ -249,6 +249,8 @@ class PyDocDocTest(unittest.TestCase):
         result, doc_loc = get_pydoc_text(xml.etree)
         self.assertEqual(doc_loc, "", "MODULE DOCS incorrectly includes a link")
 
+    @unittest.skipIf(sys.platform == 'linux2-zvm',
+                     'Not supported under ZeroVM')
     def test_not_here(self):
         missing_module = "test.i_am_not_here"
         result = run_pydoc(missing_module)
@@ -256,6 +258,8 @@ class PyDocDocTest(unittest.TestCase):
         self.assertEqual(expected, result,
             "documentation for missing module found")
 
+    @unittest.skipIf(sys.platform == 'linux2-zvm',
+                     'Not supported under ZeroVM')
     def test_input_strip(self):
         missing_module = " test.i_am_not_here "
         result = run_pydoc(missing_module)
@@ -284,6 +288,8 @@ class PydocImportTest(unittest.TestCase):
         self.test_dir = os.mkdir(TESTFN)
         self.addCleanup(rmtree, TESTFN)
 
+    @unittest.skipIf(sys.platform == 'linux2-zvm',
+                     'Not supported under ZeroVM')
     def test_badimport(self):
         # This tests the fix for issue 5230, where if pydoc found the module
         # but the module had an internal import error pydoc would report no doc
@@ -306,6 +312,8 @@ class PydocImportTest(unittest.TestCase):
             expected = badimport_pattern % (modname, expectedinmsg)
             self.assertEqual(expected, result)
 
+    @unittest.skipIf(sys.platform == 'linux2-zvm',
+                     'Not supported under ZeroVM')
     def test_apropos_with_bad_package(self):
         # Issue 7425 - pydoc -k failed when bad package on path
         pkgdir = os.path.join(TESTFN, "syntaxerr")
@@ -316,6 +324,8 @@ class PydocImportTest(unittest.TestCase):
         result = run_pydoc('zqwykjv', '-k', PYTHONPATH=TESTFN)
         self.assertEqual('', result)
 
+    @unittest.skipIf(sys.platform == 'linux2-zvm',
+                     'Not supported under ZeroVM')
     def test_apropos_with_unreadable_dir(self):
         # Issue 7367 - pydoc -k failed when unreadable dir on path
         self.unreadable_dir = os.path.join(TESTFN, "unreadable")

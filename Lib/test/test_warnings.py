@@ -382,6 +382,8 @@ class WCmdLineTests(unittest.TestCase):
             self.module._setoption('error::Warning::0')
             self.assertRaises(UserWarning, self.module.warn, 'convert to error')
 
+    @unittest.skipIf(sys.platform == 'linux2-zvm',
+                     'Not supported under ZeroVM')
     def test_improper_option(self):
         # Same as above, but check that the message is printed out when
         # the interpreter is executed. This also checks that options are
@@ -389,6 +391,8 @@ class WCmdLineTests(unittest.TestCase):
         rc, out, err = assert_python_ok("-Wxxx", "-c", "pass")
         self.assertIn(b"Invalid -W option ignored: invalid action: 'xxx'", err)
 
+    @unittest.skipIf(sys.platform == 'linux2-zvm',
+                     'Not supported under ZeroVM')
     def test_warnings_bootstrap(self):
         # Check that the warnings module does get loaded when -W<some option>
         # is used (see issue #10372 for an example of silent bootstrap failure).
@@ -706,6 +710,8 @@ class PyCatchWarningTests(CatchWarningTests):
 
 class EnvironmentVariableTests(BaseTest):
 
+    @unittest.skipIf(sys.platform == 'linux2-zvm',
+                     'Not supported under ZeroVM')
     def test_single_warning(self):
         newenv = os.environ.copy()
         newenv["PYTHONWARNINGS"] = "ignore::DeprecationWarning"
@@ -715,6 +721,8 @@ class EnvironmentVariableTests(BaseTest):
         self.assertEqual(p.communicate()[0], "['ignore::DeprecationWarning']")
         self.assertEqual(p.wait(), 0)
 
+    @unittest.skipIf(sys.platform == 'linux2-zvm',
+                     'Not supported under ZeroVM')
     def test_comma_separated_warnings(self):
         newenv = os.environ.copy()
         newenv["PYTHONWARNINGS"] = ("ignore::DeprecationWarning,"
@@ -726,6 +734,8 @@ class EnvironmentVariableTests(BaseTest):
                 "['ignore::DeprecationWarning', 'ignore::UnicodeWarning']")
         self.assertEqual(p.wait(), 0)
 
+    @unittest.skipIf(sys.platform == 'linux2-zvm',
+                     'Not supported under ZeroVM')
     def test_envvar_and_command_line(self):
         newenv = os.environ.copy()
         newenv["PYTHONWARNINGS"] = "ignore::DeprecationWarning"

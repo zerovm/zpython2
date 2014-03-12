@@ -50,6 +50,8 @@ class PkgutilTests(unittest.TestCase):
 
         del sys.modules[pkg]
 
+    @unittest.skipIf(sys.platform == 'linux2-zvm',
+                     'Not supported under ZeroVM')
     def test_getdata_zipfile(self):
         zip = 'test_getdata_zipfile.zip'
         pkg = 'test_getdata_zipfile'

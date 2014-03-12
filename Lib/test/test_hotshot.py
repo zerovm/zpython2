@@ -4,6 +4,7 @@ import unittest
 import tempfile
 import _hotshot
 import gc
+import sys
 
 from test import test_support
 
@@ -137,6 +138,8 @@ class HotShotTestCase(unittest.TestCase):
             emptyfile.close()
         gc.collect()
 
+    @unittest.skipIf(sys.platform == 'linux2-zvm',
+                     'Not supported under ZeroVM')
     def test_load_stats(self):
         def start(prof):
             prof.start()

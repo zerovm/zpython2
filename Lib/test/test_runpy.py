@@ -360,6 +360,8 @@ argv0 = sys.argv[0]
             msg = "can't find '__main__' module in %r" % script_dir
             self._check_import_error(script_dir, msg)
 
+    @unittest.skipIf(sys.platform == 'linux2-zvm',
+                     'Not supported under ZeroVM')
     def test_zipfile(self):
         with temp_dir() as script_dir:
             mod_name = '__main__'
@@ -367,6 +369,8 @@ argv0 = sys.argv[0]
             zip_name, fname = make_zip_script(script_dir, 'test_zip', script_name)
             self._check_script(zip_name, "<run_path>", fname, zip_name, '')
 
+    @unittest.skipIf(sys.platform == 'linux2-zvm',
+                     'Not supported under ZeroVM')
     def test_zipfile_compiled(self):
         with temp_dir() as script_dir:
             mod_name = '__main__'
@@ -375,6 +379,8 @@ argv0 = sys.argv[0]
             zip_name, fname = make_zip_script(script_dir, 'test_zip', compiled_name)
             self._check_script(zip_name, "<run_path>", fname, zip_name, '')
 
+    @unittest.skipIf(sys.platform == 'linux2-zvm',
+                     'Not supported under ZeroVM')
     def test_zipfile_error(self):
         with temp_dir() as script_dir:
             mod_name = 'not_main'
@@ -383,6 +389,8 @@ argv0 = sys.argv[0]
             msg = "can't find '__main__' module in %r" % zip_name
             self._check_import_error(zip_name, msg)
 
+    @unittest.skipIf(sys.platform == 'linux2-zvm',
+                     'Not supported under ZeroVM')
     def test_main_recursion_error(self):
         with temp_dir() as script_dir, temp_dir() as dummy_dir:
             mod_name = '__main__'

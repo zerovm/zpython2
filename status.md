@@ -11,39 +11,19 @@ See available tests in _python-lib-dir/python2.7/test_.
 
 ### Production
 
-+ time 5/15 failures
-	+ No system `sleep` implementation. `Function not implemented` error.
-	+ Two failing tests (test\_gmtime\_without\_arg, test\_localtime\_without\_arg) due to zerovm/zrt time implementation mechanism.  
-	+ Skipped test (test_clock) due to absense `clock()` function.
-+ datetime: 2/240 failures
-	+ No system `sleep` implementation. `Function not implemented` error.
-+ cpickle 4/195 failures
++ cpickle 
 	+ No `statvfs` implementation.
-+ quopri 2/10 failures
+	+ I can't make autotools aware about fake statvfs (nacl-specific toolchain), so just have marked some tests as "Skipped". _Fix_.
++ quopri 
 	+ No `popen` implementation.
-+ random 2/60 failures
+	+ Better rewrite.
++ random 
 	+ No `sleep` implementation.
-+ argparse 72/1596 failures
-	+ No `chdir` implementation.
-+ unicodedata 1/22 failures
+	+ Better rewrite.
++ argparse 18/1596 failures
++ unicodedata
 	+ No `pipe` implementation.
-+ 2to3 1/577 failures
-	+	No `os.system` routine.
-+ runpy 4/17 failures
-	+ `Unlink/rmdir` bug.
-+ cookielib 1/55 failures
-	+ One failing test due to time implementation mechanism.
-+ py_compile 1/3 failures
-	+ No `chdir` implementation.
-+ sys 3/25 failures
-	+ No `pipe` impplementation.
-+ platform 2/20
-	+	No `symlink` implementation.
-	+ No executable availiable under zerovm (only through /dev/self)
-+ pickle 2/104 failures
-	+ No `statvfs` implementation
-+ pickletools 1/53 failures
-	+ No `statvfs` implementation
++ py_compile 2/3 failures
 
 ### Experimental
 
@@ -53,46 +33,56 @@ See available tests in _python-lib-dir/python2.7/test_.
 
 	+ Bunch of `Function not implemented` errors. Have to stub them in glibc to remove from testing or replace with simple implementations.
 	+ `chown` not raising `OSError`. Experimental ZRT feature.
-+ os: 16/64 failures
-	+ No `dup`, `utime`, `tcsetpgrp`, `datasync`, `pipe`, `symlink` implementations.
-	+ No `/dev/null`, `/dev/urandom` devices.
+	+ stub: lib/zrtlog.c:102: __zrt_log_push_name: Assertion `0' failed
++ os: 1/64 failures
+	+ No `fchdir` implementation.
 + os.path 9/33 failures
 	+ No `symlink`, `chdir` implementation.
+	+ stub: lib/zrtlog.c:102: __zrt_log_push_name: Assertion `0' failed.
 + dummy_threading: 1/15 failures
 	+ No `sleep` support.
+	+ Hangs!
 + mmap: 13/19 failures
 	
 	Very limited functionality. Almost unsupported feature. 
 
 	+ No large file support 
+	+ stub: lib/fs/mem_mount_wraper.cc:480: int mem_close(MountsPublicInterface*, int): Assertion `mnode' failed.
 
-+ hotshot 1/6 failures
++ hotshot
 	+ No `getrusage` implementation.
-+ tarfile 24/241 failures
+	+ Again issues with unlinking @tmp (when using -mtest.regrest instead of invoking test_hotshot.py directly)
++ tarfile 18/241 failures
 	+ No `symlink`, `chdir` implementation.
-+ gzip 10/18 failures
-	+ No `fsync` implementation.
-+ uuid 2/14 failures
+	+ Filesystem issues (mkdir, unlink, stat)
++ uuid
 	+ No `pipe`, `gethostbyname` implementation.
-+ import 6/23 failures
++ import 5/23 failures
 	+ No `pipe`, `utime` implementation.
 	+ Won't import *.pyc files without atime/ctime/utime support.
+	+ Can't make skip tests!
 + shutil 17/33 failures
 	+ No `mkfifo`, `chdir`, `symlink` implementations.
+	+ Segfault!
 + trace 2/14 failures
-	+ `fcntl` zrt issue
-+ hash 12/24 failures
+	+ `rmdir` Not empty, can't remove
+	+ failed test 
++ hash 
 	+ No `pipe` implementation.
-+ warning 10/71 failures
+	+ Better rewrite
++ warning
 	+ No `pipe` implementation.
-+ sysconfig 1/10 failures
+	+ Better rewrite
++ sysconfig 
 	+ No `symlink` implementation.
-+ pkgutil 1/5 failures
++ pkgutil
 	+ ZIP does not support timestamps before 1980
-+ pydoc 5/15 failures
++ pydoc
 	+ No `pipe` support.
-+ traceback 1/11 failures
+	+ Better rewrite
++ traceback
 	+ No `sleep` implementation.
+	+ Better rewrite
 
 ### Unsupported
 

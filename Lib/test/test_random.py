@@ -5,6 +5,7 @@ import random
 import time
 import pickle
 import warnings
+import sys
 from math import log, exp, pi, fsum, sin
 from functools import reduce
 from test import test_support
@@ -21,7 +22,6 @@ class TestBasicOps(unittest.TestCase):
     def test_autoseed(self):
         self.gen.seed()
         state1 = self.gen.getstate()
-        time.sleep(0.1)
         self.gen.seed()      # diffent seeds at different times
         state2 = self.gen.getstate()
         self.assertNotEqual(state1, state2)

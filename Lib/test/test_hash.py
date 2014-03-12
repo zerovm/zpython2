@@ -142,6 +142,9 @@ class HashBuiltinsTestCase(unittest.TestCase):
         for obj in self.hashes_to_check:
             self.assertEqual(hash(obj), _default_hash(obj))
 
+
+@unittest.skipIf(sys.platform == 'linux2-zvm',
+                 'Not supported under ZeroVM')
 class HashRandomizationTests(unittest.TestCase):
 
     # Each subclass should define a field "repr_", containing the repr() of

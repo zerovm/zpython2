@@ -11,6 +11,8 @@ class PlatformTest(unittest.TestCase):
         res = platform.architecture()
 
     if hasattr(os, "symlink"):
+        @unittest.skipIf(sys.platform == 'linux2-zvm',
+                         'Not supported under ZeroVM')
         def test_architecture_via_symlink(self): # issue3762
             def get(python):
                 cmd = [python, '-c',
@@ -217,6 +219,8 @@ class PlatformTest(unittest.TestCase):
     def test_dist(self):
         res = platform.dist()
 
+    @unittest.skipIf(sys.platform == 'linux2-zvm',
+                     'Not supported under ZeroVM')
     def test_libc_ver(self):
         import os
         if os.path.isdir(sys.executable) and \

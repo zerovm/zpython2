@@ -297,6 +297,8 @@ class StatAttributeTests(unittest.TestCase):
         except TypeError:
             pass
 
+    @unittest.skipIf(sys.platform == 'linux2-zvm',
+                     'Not supported under ZeroVM')
     def test_utime_dir(self):
         delta = 1000000
         st = os.stat(test_support.TESTFN)
@@ -379,6 +381,8 @@ class EnvironTests(mapping_tests.BasicTestMappingProtocol):
 class WalkTests(unittest.TestCase):
     """Tests for os.walk()."""
 
+    @unittest.skipIf(sys.platform == 'linux2-zvm',
+                     'Not supported under ZeroVM')
     def test_traversal(self):
         import os
         from os.path import join
@@ -558,11 +562,15 @@ class URandomTests (unittest.TestCase):
         self.assertEqual(len(out), count, err)
         return out
 
+    @unittest.skipIf(sys.platform == 'linux2-zvm',
+                     'Not supported under ZeroVM')
     def test_urandom_subprocess(self):
         data1 = self.get_urandom_subprocess(16)
         data2 = self.get_urandom_subprocess(16)
         self.assertNotEqual(data1, data2)
 
+    @unittest.skipIf(sys.platform == 'linux2-zvm',
+                     'Not supported under ZeroVM')
     def test_execvpe_with_bad_arglist(self):
         self.assertRaises(ValueError, os.execvpe, 'notepad', [], None)
 
@@ -593,6 +601,9 @@ class Win32ErrorTests(unittest.TestCase):
 class TestInvalidFD(unittest.TestCase):
     singles = ["fchdir", "fdopen", "dup", "fdatasync", "fstat",
                "fstatvfs", "fsync", "tcgetpgrp", "ttyname"]
+    if sys.platform == 'linux2-zvm':
+        for func in ["fdatasync", "fsync", "fstatvfs", "tcgetpgrp"]:
+            singles.remove(func)
     #singles.append("close")
     #We omit close because it doesn'r raise an exception on some platforms
     def get_single(f):
@@ -644,6 +655,8 @@ class TestInvalidFD(unittest.TestCase):
         if hasattr(os, "fchown"):
             self.check(os.fchown, -1, -1)
 
+    @unittest.skipIf(sys.platform == 'linux2-zvm',
+                     'Not supported under ZeroVM')
     def test_fpathconf(self):
         if hasattr(os, "fpathconf"):
             self.check(os.fpathconf, "PC_NAME_MAX")
@@ -660,6 +673,8 @@ class TestInvalidFD(unittest.TestCase):
         if hasattr(os, "read"):
             self.check(os.read, 1)
 
+    @unittest.skipIf(sys.platform == 'linux2-zvm',
+                     'Not supported under ZeroVM')
     def test_tcsetpgrpt(self):
         if hasattr(os, "tcsetpgrp"):
             self.check(os.tcsetpgrp, 0)
@@ -704,6 +719,8 @@ if sys.platform != 'win32':
                 self.assertRaises(OverflowError, os.setreuid, 1<<32, 0)
                 self.assertRaises(OverflowError, os.setreuid, 0, 1<<32)
 
+            @unittest.skipIf(sys.platform == 'linux2-zvm',
+                             'Not supported under ZeroVM')
             def test_setreuid_neg1(self):
                 # Needs to accept -1.  We run this in a subprocess to avoid
                 # altering the test runner's process state (issue8045).
@@ -718,6 +735,8 @@ if sys.platform != 'win32':
                 self.assertRaises(OverflowError, os.setregid, 1<<32, 0)
                 self.assertRaises(OverflowError, os.setregid, 0, 1<<32)
 
+            @unittest.skipIf(sys.platform == 'linux2-zvm',
+                             'Not supported under ZeroVM')
             def test_setregid_neg1(self):
                 # Needs to accept -1.  We run this in a subprocess to avoid
                 # altering the test runner's process state (issue8045).

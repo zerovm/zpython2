@@ -758,6 +758,8 @@ class TestDate(HarmlessMixedComparison, unittest.TestCase):
             self.assertRaises(ValueError, self.theclass.fromtimestamp,
                               insane)
 
+    @unittest.skipIf(sys.platform == 'linux2-zvm',
+                     'Not supported under ZeroVM')
     def test_today(self):
         import time
 
