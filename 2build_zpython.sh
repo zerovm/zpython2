@@ -16,7 +16,7 @@ fi
 
 ./configure \
 --host=x86_64-nacl \
---prefix=${ZPYTHON_ROOT}/install \
+--prefix=/ \
 --without-threads \
 --enable-shared=no \
 --disable-shared \
@@ -25,7 +25,7 @@ $DEBUG
 export HOSTPYTHON=`which python`
 export HOSTPGEN=./Parser/hostpgen
 
-make python install
+make python install DESTDIR=${ZPYTHON_ROOT}/install
 
 $STRIP
 
