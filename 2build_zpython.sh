@@ -20,6 +20,7 @@ fi
 --without-threads \
 --enable-shared=no \
 --disable-shared \
+--with-system-ffi \
 $DEBUG
 
 export HOSTPYTHON=`which python`
