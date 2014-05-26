@@ -20,10 +20,9 @@ See available tests in _python-lib-dir/python2.7/test_.
 + random 
 	+ No `sleep` implementation.
 	+ Better rewrite.
-+ argparse 18/1596 failures
++ argparse 6/1596 failures
 + unicodedata
 	+ No `pipe` implementation.
-+ py_compile 2/3 failures
 
 ### Experimental
 
@@ -110,7 +109,7 @@ See available tests in _python-lib-dir/python2.7/test_.
 + socket
 + smtplib
 + ctypes
-	+	Not yet. `libffi` needs to pe ported first.
+	+	No `dlopen` support.
 + cd
 + readline
 + cl
