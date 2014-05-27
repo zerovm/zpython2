@@ -26,22 +26,22 @@ See available tests in _python-lib-dir/python2.7/test_.
 
 ### Experimental
 
-+ posix: 18/38 failures
++ posix
 
 	Relies heavily on zrt. Most of features is experimental.
 
 	+ Bunch of `Function not implemented` errors. Have to stub them in glibc to remove from testing or replace with simple implementations.
 	+ `chown` not raising `OSError`. Experimental ZRT feature.
 	+ stub: lib/zrtlog.c:102: __zrt_log_push_name: Assertion `0' failed
-+ os: 1/64 failures
++ os
 	+ No `fchdir` implementation.
-+ os.path 9/33 failures
++ os.path
 	+ No `symlink`, `chdir` implementation.
 	+ stub: lib/zrtlog.c:102: __zrt_log_push_name: Assertion `0' failed.
-+ dummy_threading: 1/15 failures
++ dummy_threading
 	+ No `sleep` support.
 	+ Hangs!
-+ mmap: 13/19 failures
++ mmap
 	
 	Very limited functionality. Almost unsupported feature. 
 
@@ -51,19 +51,19 @@ See available tests in _python-lib-dir/python2.7/test_.
 + hotshot
 	+ No `getrusage` implementation.
 	+ Again issues with unlinking @tmp (when using -mtest.regrest instead of invoking test_hotshot.py directly)
-+ tarfile 18/241 failures
++ tarfile
 	+ No `symlink`, `chdir` implementation.
 	+ Filesystem issues (mkdir, unlink, stat)
 + uuid
 	+ No `pipe`, `gethostbyname` implementation.
-+ import 5/23 failures
++ import
 	+ No `pipe`, `utime` implementation.
 	+ Won't import *.pyc files without atime/ctime/utime support.
 	+ Can't make skip tests!
-+ shutil 17/33 failures
++ shutil 
 	+ No `mkfifo`, `chdir`, `symlink` implementations.
 	+ Segfault!
-+ trace 2/14 failures
++ trace 
 	+ `rmdir` Not empty, can't remove
 	+ failed test 
 + hash 
@@ -86,7 +86,8 @@ See available tests in _python-lib-dir/python2.7/test_.
 ### Unsupported
 
 + subprocess
-+ popen, popen2
++ popen
++ popen2
 + curses
 + signal
 + pipes
@@ -94,7 +95,9 @@ See available tests in _python-lib-dir/python2.7/test_.
 + mailbox
 	+ Tests fail due to zrt issue #67. 
 	+ No `gethostname` implementation.
-+ aetools/aepack/aetypes
++ aetools
++ aepack
++ aetypes
 + telnetlib
 + threading
 + httpservers
@@ -104,7 +107,8 @@ See available tests in _python-lib-dir/python2.7/test_.
 + docxmlrpc
 + imaplib
 + ftplib
-+ urllib2/urllib
++ urllib2
++ urllib
 + httplib
 + socket
 + smtplib
@@ -124,7 +128,9 @@ See available tests in _python-lib-dir/python2.7/test_.
 + multiprocessing
 + nis
 + macos
-+ dbm/gdbm/anydbm
++ dbm
++ gdbm
++ anydbm
 + imgfile
 + msilib
 + ossaudiodev
@@ -152,6 +158,38 @@ See available tests in _python-lib-dir/python2.7/test_.
 + zip
 + zipfile
 + select
++ BaseHTTPServer
++ CGIHTTPServer
++ ColorPicker
++ DocXMLRPCServer
++ EasyDialogs
++ FrameWork
++ MacOS
++ MiniAEFrame
++ SUNAUDIODEV
++ ScrolledText
++ SimpleHTTPServer
++ SimpleXMLRPCServer
++ SocketServer
++ Tix
++ _winreg
++ autoGIL
++ bdb
++ curses.ascii
++ curses.panel
++ curses.textpad
++ fl
++ flp
++ fm
++ ic
++ findertools
++ gensuitmodule
++ macostools
++ msvcrt
++ smtpd
++ ttk
++ tty
+
 
 ##Failing regression test list
 
