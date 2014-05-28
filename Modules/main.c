@@ -584,6 +584,7 @@ Py_Main(int argc, char **argv)
     }
 #ifdef __native_client__
     zfork();
+    PyRun_SimpleStringFlags("import os;os.reload_environ()", NULL);
 #endif
     if (command) {
         sts = PyRun_SimpleStringFlags(command, &cf) != 0;
