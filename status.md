@@ -26,22 +26,22 @@ See available tests in _python-lib-dir/python2.7/test_.
 
 ### Experimental
 
-+ posix: 18/38 failures
++ posix
 
 	Relies heavily on zrt. Most of features is experimental.
 
 	+ Bunch of `Function not implemented` errors. Have to stub them in glibc to remove from testing or replace with simple implementations.
 	+ `chown` not raising `OSError`. Experimental ZRT feature.
 	+ stub: lib/zrtlog.c:102: __zrt_log_push_name: Assertion `0' failed
-+ os: 1/64 failures
++ os
 	+ No `fchdir` implementation.
-+ os.path 9/33 failures
++ os.path
 	+ No `symlink`, `chdir` implementation.
 	+ stub: lib/zrtlog.c:102: __zrt_log_push_name: Assertion `0' failed.
-+ dummy_threading: 1/15 failures
++ dummy_threading
 	+ No `sleep` support.
 	+ Hangs!
-+ mmap: 13/19 failures
++ mmap
 	
 	Very limited functionality. Almost unsupported feature. 
 
@@ -51,19 +51,19 @@ See available tests in _python-lib-dir/python2.7/test_.
 + hotshot
 	+ No `getrusage` implementation.
 	+ Again issues with unlinking @tmp (when using -mtest.regrest instead of invoking test_hotshot.py directly)
-+ tarfile 18/241 failures
++ tarfile
 	+ No `symlink`, `chdir` implementation.
 	+ Filesystem issues (mkdir, unlink, stat)
 + uuid
 	+ No `pipe`, `gethostbyname` implementation.
-+ import 5/23 failures
++ import
 	+ No `pipe`, `utime` implementation.
 	+ Won't import *.pyc files without atime/ctime/utime support.
 	+ Can't make skip tests!
-+ shutil 17/33 failures
++ shutil 
 	+ No `mkfifo`, `chdir`, `symlink` implementations.
 	+ Segfault!
-+ trace 2/14 failures
++ trace 
 	+ `rmdir` Not empty, can't remove
 	+ failed test 
 + hash 
@@ -85,73 +85,112 @@ See available tests in _python-lib-dir/python2.7/test_.
 
 ### Unsupported
 
-+ subprocess
-+ popen, popen2
-+ curses
-+ signal
-+ pipes
-+ Tkinter
-+ mailbox
-	+ Tests fail due to zrt issue #67. 
-	+ No `gethostname` implementation.
-+ aetools/aepack/aetypes
-+ telnetlib
-+ threading
-+ httpservers
-+ queue
-+ poplib
-+ winreg
-+ docxmlrpc
-+ imaplib
-+ ftplib
-+ urllib2/urllib
-+ httplib
-+ socket
-+ smtplib
-+ ctypes
-	+	No `dlopen` support.
-+ cd
-+ readline
-+ cl
-+ sv
-+ al
-+ bsddb
-+ gl
-+ ssl
-	+ No `sockets`.
-+ sunaudiodev
-+ winsound
-+ multiprocessing
-+ nis
-+ macos
-+ dbm/gdbm/anydbm
-+ imgfile
-+ msilib
-+ ossaudiodev
-+ linuxaudiodev
-+ dl
-	+ No dynamic linking support in ZeroVM.
-+ commands
-+ asyncore
-+ zipimport
-	+ ZIP does not support timestamps before 1980
-+ pdb 
-+ macpath
-+ resource
-+ pty
-+ gdb
-+ ntpath
-+ termios
-+ dircache
-	+ Deprecated since 2.6
-+ glob
-	+ No `symlink` implementation.
-+ mhlib
-+ mimetools
-+ pwd
-+ zip
-+ zipfile
-+ select
+* subprocessing
+	+ subprocess
+	+ popen
+	+ popen2
+	+ pipes
+	+ multiprocessing
+	+ commands
+	+ asyncore
+* GUI
+	+ curses
+	+ curses.ascii
+	+ curses.panel
+	+ curses.textpad
+	+ Tkinter
+	+ Tix
+	+ ScrolledText
+	+ ttk
+	+ turtle
+* ZeroVM/Zrt constraints
+	+ pdb 
+	+ zipfile
+	+ signal
+	+ ctypes
+	+ dl
+	+ readline
+	+ rlcomleter
+	+ ossaudiodev
+	+ linuxaudiodev
+	+ zipimport
+	+ resource
+	+ pty
+	+ gdb
+	+ termios
+	+ glob
+	+ pwd
+	+ select
+	+ tty
+* networking
+	+ mailbox
+	+ telnetlib
+	+ httpservers
+	+ poplib
+	+ docxmlrpc
+	+ imaplib
+	+ ftplib
+	+ urllib2
+	+ urllib
+	+ httplib
+	+ socket
+	+ smtplib
+	+ ssl
+	+ mimetools
+	+ BaseHTTPServer
+	+ CGIHTTPServer
+	+ DocXMLRPCServer
+	+ SimpleHTTPServer
+	+ SimpleXMLRPCServer
+	+ SocketServer
+	+ smtpd
+* MacOS, Windows, IRIX, Sun stuff
+	+ aetools
+	+ aepack
+	+ aetypes
+	+ winreg
+	+ cd
+	+ cl
+	+ sv
+	+ al
+	+ gl
+	+ fl
+	+ flp
+	+ fm
+	+ ic
+	+ sunaudiodev
+	+ winsound
+	+ nis
+	+ macos
+	+ imgfile
+	+ msilib
+	+ macpath
+	+ ntpath
+	+ ColorPicker
+	+ EasyDialogs
+	+ SUNAUDIODEV
+	+ FrameWork
+	+ MacOS
+	+ MiniAEFrame
+	+ _winreg
+	+ autoGIL
+	+ findertools
+	+ gensuitmodule
+	+ macostools
+	+ msvcrt
+* Mutithreading
+	+ threading
+	+ queue
+* No compiled modules
+	+ bsddb
+	+ dbm
+	+ gdbm
+	+ anydbm
+	+ bdb
+
+
+
+
 
 ##Failing regression test list
 

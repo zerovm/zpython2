@@ -452,7 +452,7 @@ extern char **environ;
 #endif /* !_MSC_VER */
 
 static PyObject *
-convertenviron(void)
+convertenviron(PyObject* input)
 {
     PyObject *d;
     char **e;
@@ -460,7 +460,10 @@ convertenviron(void)
     APIRET rc;
     char   buffer[1024]; /* OS/2 Provides a Documented Max of 1024 Chars */
 #endif
-    d = PyDict_New();
+    if (input == NULL)
+        d = PyDict_New();
+    else
+        d = input;
     if (d == NULL)
         return NULL;
 #ifdef WITH_NEXT_FRAMEWORK
@@ -511,6 +514,22 @@ convertenviron(void)
     return d;
 }
 
+PyDoc_STRVAR(reload_environ__doc__,
+"reload_environ()\n\n\
+Reloads os.environ dict according to **environ variable");
+
+static PyObject*
+reload_environ(PyObject *self, PyObject *args)
+{
+    // self is always NULL, so we have to get module object explicitly
+    PyObject* myModule = PyImport_ImportModule("posix");
+    PyObject* environ = PyDict_GetItemString(PyModule_GetDict(myModule), "environ");
+    // clear'n'reload environ dict
+    PyDict_Clear(environ);
+    PyObject* d = convertenviron(environ);
+
+    Py_RETURN_NONE;
+}
 
 /* Set a POSIX-specific error from errno, and return NULL */
 
@@ -8996,6 +9015,7 @@ static PyMethodDef posix_methods[] = {
     {"getresgid",       posix_getresgid, METH_NOARGS, posix_getresgid__doc__},
 #endif
     {"urandom",         posix_urandom,   METH_VARARGS, posix_urandom__doc__},
+    {"reload_environ",  reload_environ,  METH_VARARGS,   reload_environ__doc__},
     {NULL,              NULL}            /* Sentinel */
 };
 
@@ -9306,7 +9326,7 @@ INITFUNC(void)
         return;
 
     /* Initialize environ dictionary */
-    v = convertenviron();
+    v = convertenviron(NULL);
     Py_XINCREF(v);
     if (v == NULL || PyModule_AddObject(m, "environ", v) != 0)
         return;
