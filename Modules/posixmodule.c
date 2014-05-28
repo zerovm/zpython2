@@ -452,7 +452,7 @@ extern char **environ;
 #endif /* !_MSC_VER */
 
 static PyObject *
-convertenviron(void)
+convertenviron(PyObject* input)
 {
     PyObject *d;
     char **e;
@@ -460,7 +460,10 @@ convertenviron(void)
     APIRET rc;
     char   buffer[1024]; /* OS/2 Provides a Documented Max of 1024 Chars */
 #endif
-    d = PyDict_New();
+    if (input == NULL)
+        d = PyDict_New();
+    else
+        d = input;
     if (d == NULL)
         return NULL;
 #ifdef WITH_NEXT_FRAMEWORK
@@ -9306,7 +9309,7 @@ INITFUNC(void)
         return;
 
     /* Initialize environ dictionary */
-    v = convertenviron();
+    v = convertenviron(NULL);
     Py_XINCREF(v);
     if (v == NULL || PyModule_AddObject(m, "environ", v) != 0)
         return;
