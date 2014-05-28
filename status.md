@@ -85,110 +85,111 @@ See available tests in _python-lib-dir/python2.7/test_.
 
 ### Unsupported
 
-+ subprocess
-+ popen
-+ popen2
-+ curses
-+ signal
-+ pipes
-+ Tkinter
-+ mailbox
-	+ Tests fail due to zrt issue #67. 
-	+ No `gethostname` implementation.
-+ aetools
-+ aepack
-+ aetypes
-+ telnetlib
-+ threading
-+ httpservers
-+ queue
-+ poplib
-+ winreg
-+ docxmlrpc
-+ imaplib
-+ ftplib
-+ urllib2
-+ urllib
-+ httplib
-+ socket
-+ smtplib
-+ ctypes
-	+	No `dlopen` support.
-+ cd
-+ readline
-+ cl
-+ sv
-+ al
-+ bsddb
-+ gl
-+ ssl
-	+ No `sockets`.
-+ sunaudiodev
-+ winsound
-+ multiprocessing
-+ nis
-+ macos
-+ dbm
-+ gdbm
-+ anydbm
-+ imgfile
-+ msilib
-+ ossaudiodev
-+ linuxaudiodev
-+ dl
-	+ No dynamic linking support in ZeroVM.
-+ commands
-+ asyncore
-+ zipimport
-	+ ZIP does not support timestamps before 1980
-+ pdb 
-+ macpath
-+ resource
-+ pty
-+ gdb
-+ ntpath
-+ termios
-+ dircache
-	+ Deprecated since 2.6
-+ glob
-	+ No `symlink` implementation.
-+ mhlib
-+ mimetools
-+ pwd
-+ zip
-+ zipfile
-+ select
-+ BaseHTTPServer
-+ CGIHTTPServer
-+ ColorPicker
-+ DocXMLRPCServer
-+ EasyDialogs
-+ FrameWork
-+ MacOS
-+ MiniAEFrame
-+ SUNAUDIODEV
-+ ScrolledText
-+ SimpleHTTPServer
-+ SimpleXMLRPCServer
-+ SocketServer
-+ Tix
-+ _winreg
-+ autoGIL
-+ bdb
-+ curses.ascii
-+ curses.panel
-+ curses.textpad
-+ fl
-+ flp
-+ fm
-+ ic
-+ findertools
-+ gensuitmodule
-+ macostools
-+ msvcrt
-+ smtpd
-+ ttk
-+ tty
+* subprocessing
+	+ subprocess
+	+ popen
+	+ popen2
+	+ pipes
+	+ multiprocessing
+	+ commands
+	+ asyncore
+* GUI
+	+ curses
+	+ curses.ascii
+	+ curses.panel
+	+ curses.textpad
+	+ Tkinter
+	+ Tix
+	+ ScrolledText
+	+ ttk
+	+ turtle
+* ZeroVM/Zrt constraints
+	+ pdb 
+	+ zipfile
+	+ signal
+	+ ctypes
+	+ dl
+	+ readline
+	+ rlcomleter
+	+ ossaudiodev
+	+ linuxaudiodev
+	+ zipimport
+	+ resource
+	+ pty
+	+ gdb
+	+ termios
+	+ glob
+	+ pwd
+	+ select
+	+ tty
+* networking
+	+ mailbox
+	+ telnetlib
+	+ httpservers
+	+ poplib
+	+ docxmlrpc
+	+ imaplib
+	+ ftplib
+	+ urllib2
+	+ urllib
+	+ httplib
+	+ socket
+	+ smtplib
+	+ ssl
+	+ mimetools
+	+ BaseHTTPServer
+	+ CGIHTTPServer
+	+ DocXMLRPCServer
+	+ SimpleHTTPServer
+	+ SimpleXMLRPCServer
+	+ SocketServer
+	+ smtpd
+* MacOS, Windows, IRIX, Sun stuff
+	+ aetools
+	+ aepack
+	+ aetypes
+	+ winreg
+	+ cd
+	+ cl
+	+ sv
+	+ al
+	+ gl
+	+ fl
+	+ flp
+	+ fm
+	+ ic
+	+ sunaudiodev
+	+ winsound
+	+ nis
+	+ macos
+	+ imgfile
+	+ msilib
+	+ macpath
+	+ ntpath
+	+ ColorPicker
+	+ EasyDialogs
+	+ SUNAUDIODEV
+	+ FrameWork
+	+ MacOS
+	+ MiniAEFrame
+	+ _winreg
+	+ autoGIL
+	+ findertools
+	+ gensuitmodule
+	+ macostools
+	+ msvcrt
+* Mutithreading
+	+ threading
+	+ queue
+* No compiled modules
+	+ bsddb
+	+ dbm
+	+ gdbm
+	+ anydbm
+	+ bdb
+
+
+
 
 
 ##Failing regression test list
