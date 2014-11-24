@@ -48,7 +48,7 @@ make install
 cd $ZPYTHON_ROOT
 ./configure
 make host
-./2build_zpython.sh
+./2build_zpython.sh release
 echo "Built '$ZPYTHON_ROOT/python.tar'"
 sudo cp python.tar /host-workspace/zpython2.7.3.tar
 # TODO(larsbutler): Run `3test.py`
