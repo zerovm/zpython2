@@ -3,6 +3,11 @@
 List of supported modules/features 
 is [here](https://github.com/zerovm/zpython2/blob/master/status.md)
 
+## Nightly-built distribution
+
+Nightly builds of zpython2 (tarball) are available
+[here](http://ci.zerovm.org/latest-packages/zpython2.7.3.tar).
+
 ## Building python for ZeroVM
 
 ### Prerequisites
